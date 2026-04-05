@@ -72,6 +72,11 @@ app.include_router(screener.router)
 app.include_router(ai.router)
 
 
+# # Health Check
+# @app.get("/health")
+# def health():
+#     return {"status": "ok"}
+
 # ── Admin endpoints ───────────────────────────────────────────────────────────
 
 @app.post("/refresh", tags=["Admin"])
@@ -91,6 +96,7 @@ def cache_stats():
 def clear_cache():
     cache.clear()
     return {"message": "Cache cleared"}
+
 
 
 if __name__ == "__main__":

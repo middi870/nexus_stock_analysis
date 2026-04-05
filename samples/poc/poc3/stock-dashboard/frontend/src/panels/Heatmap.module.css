@@ -1,0 +1,41 @@
+.wrap { display: flex; flex-direction: column; gap: 12px; }
+
+.scale { display: flex; align-items: center; gap: 8px; font-family: var(--f-mono); font-size: 9px; }
+.scaleBar {
+  width: 80px; height: 6px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--red), #444, var(--teal));
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px; padding: 12px;
+}
+.cell {
+  border-radius: 5px;
+  padding: 12px 10px;
+  cursor: pointer;
+  transition: opacity .15s, transform .15s;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.cell:hover { opacity: .85; transform: scale(1.02); }
+
+.csym   { font-family: var(--f-mono); font-size: 11px; font-weight: 700; color: rgba(255,255,255,.95); }
+.cpct   { font-family: var(--f-mono); font-size: 15px; font-weight: 700; color: #fff; }
+.cprice { font-family: var(--f-mono); font-size: 9px; color: rgba(255,255,255,.65); }
+.cname  { font-size: 9px; color: rgba(255,255,255,.5); margin-top: 1px; }
+
+/* Sector bars */
+.sectors { padding: 8px 16px 14px; display: flex; flex-direction: column; gap: 10px; }
+.secRow { display: flex; align-items: center; gap: 12px; }
+.secName {
+  font-family: var(--f-mono); font-size: 9px; color: var(--txt2);
+  width: 110px; flex-shrink: 0; text-transform: uppercase; letter-spacing: .5px;
+}
+.secBarWrap { flex: 1; height: 6px; background: var(--s3); border-radius: 3px; overflow: hidden; }
+.secBar     { height: 100%; border-radius: 3px; transition: width .6s ease; }
+.secUp      { background: var(--teal); }
+.secDn      { background: var(--red); }
+.secPct     { font-family: var(--f-mono); font-size: 10px; width: 54px; text-align: right; }
+.up { color: var(--teal); }
+.dn { color: var(--red); }

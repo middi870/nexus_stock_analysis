@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StockPulse — Market Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
+<style>
+/* ── Reset & Variables ───────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #090b0f;
+  --surface:   #0f1318;
+  --card:      #141920;
+  --border:    #1e2730;
+  --border2:   #252f3a;
+  --accent:    #00e5a0;
+  --accent2:   #0099ff;
+  --accent3:   #ff4d6d;
+  --text:      #e2eaf4;
+  --muted:     #5a6a7a;
+  --muted2:    #3a4a5a;
+  --green:     #00c97a;
+  --red:       #ff4d6d;
+  --amber:     #ffb340;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius:    8px;
+  --shadow:    0 4px 24px rgba(0,0,0,.5);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Noise texture overlay ───────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: .35;
+}
+
+/* ── Layout ──────────────────────────────────────────────── */
+.layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; position: relative; z-index: 1; }
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-head);
+  font-size: 18px; font-weight: 800;
+  letter-spacing: -.3px;
+}
+
+.logo-icon {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 6px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+
+.logo-icon svg { width: 18px; height: 18px; fill: #000; }
+.logo-sub { color: var(--muted); font-size: 11px; font-family: var(--font-mono); margin-top: 2px; }
+
+/* Sidebar search */
+.search-wrap {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.search-input {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 8px 12px 8px 32px;
+  outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235a6a7a' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  transition: border-color .2s;
+}
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--muted); }
+
+/* Company list */
+.company-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+.company-list::-webkit-scrollbar { width: 3px; }
+.company-list::-webkit-scrollbar-track { background: transparent; }
+.company-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.sector-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 12px 16px 4px;
+}
+
+.company-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background .15s;
+  border-left: 2px solid transparent;
+}
+.company-item:hover { background: var(--card); }
+.company-item.active {
+  background: rgba(0,229,160,.06);
+  border-left-color: var(--accent);
+}
+
+.co-left { display: flex; flex-direction: column; gap: 2px; }
+.co-sym {
+  font-family: var(--font-mono);
+  font-size: 12px; font-weight: 500;
+  color: var(--text);
+}
+.co-name { font-size: 11px; color: var(--muted); max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.co-right { text-align: right; }
+.co-price { font-family: var(--font-mono); font-size: 12px; font-weight: 500; }
+.co-chg { font-family: var(--font-mono); font-size: 10px; padding: 1px 5px; border-radius: 3px; }
+.co-chg.pos { color: var(--green); background: rgba(0,201,122,.12); }
+.co-chg.neg { color: var(--red); background: rgba(255,77,109,.12); }
+
+/* Sidebar footer */
+.sidebar-footer {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.refresh-btn {
+  flex: 1;
+  background: rgba(0,229,160,.1);
+  border: 1px solid rgba(0,229,160,.2);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 7px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all .2s;
+}
+.refresh-btn:hover { background: rgba(0,229,160,.18); }
+.last-updated { font-family: var(--font-mono); font-size: 9px; color: var(--muted); }
+
+/* ── Main ────────────────────────────────────────────────── */
+.main { display: flex; flex-direction: column; overflow: hidden; }
+
+/* Top bar */
+.topbar {
+  padding: 16px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface);
+}
+
+.topbar-title {
+  font-family: var(--font-head);
+  font-size: 20px; font-weight: 700;
+}
+
+.topbar-tabs {
+  display: flex; gap: 4px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 3px;
+}
+
+.tab-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 5px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+}
+.tab-btn.active { background: var(--accent); color: #000; font-weight: 500; }
+
+.topbar-right { display: flex; gap: 8px; }
+
+.period-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 5px 10px;
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+}
+.period-btn.active { border-color: var(--accent); color: var(--accent); }
+
+/* Content area */
+.content { flex: 1; overflow-y: auto; padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; }
+.content::-webkit-scrollbar { width: 3px; }
+.content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── Stat cards ──────────────────────────────────────────── */
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.stat-card:hover { border-color: var(--border2); }
+.stat-card::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+}
+.stat-card.green::after  { background: var(--green); }
+.stat-card.red::after    { background: var(--red); }
+.stat-card.blue::after   { background: var(--accent2); }
+.stat-card.amber::after  { background: var(--amber); }
+
+.stat-label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.stat-val   { font-family: var(--font-head); font-size: 26px; font-weight: 700; margin-top: 4px; line-height: 1; }
+.stat-sub   { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-top: 4px; }
+.stat-val.pos { color: var(--green); }
+.stat-val.neg { color: var(--red); }
+
+/* ── Chart card ──────────────────────────────────────────── */
+.chart-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.chart-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.chart-title { font-family: var(--font-head); font-size: 14px; font-weight: 600; }
+.chart-legend { display: flex; gap: 14px; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.chart-wrap { position: relative; height: 260px; }
+
+/* ── Two-col grid ────────────────────────────────────────── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ── Compare view ────────────────────────────────────────── */
+.compare-controls {
+  display: flex; gap: 10px; align-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+}
+.compare-select {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  flex: 1;
+  outline: none;
+}
+.compare-vs { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.compare-go {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+.compare-go:hover { opacity: .85; }
+
+.corr-badge {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  display: flex; gap: 20px;
+}
+.corr-item { display: flex; flex-direction: column; gap: 2px; }
+.corr-label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.corr-val   { font-family: var(--font-head); font-size: 18px; font-weight: 700; }
+
+/* ── Movers table ────────────────────────────────────────── */
+.movers-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.movers-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.movers-head {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.movers-head-label { font-family: var(--font-head); font-size: 13px; font-weight: 600; }
+.movers-badge {
+  font-family: var(--font-mono); font-size: 10px;
+  padding: 2px 7px; border-radius: 3px;
+}
+.movers-badge.gain { background: rgba(0,201,122,.15); color: var(--green); }
+.movers-badge.loss { background: rgba(255,77,109,.15); color: var(--red); }
+
+.mover-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background .15s;
+  cursor: pointer;
+}
+.mover-row:last-child { border-bottom: none; }
+.mover-row:hover { background: rgba(255,255,255,.025); }
+
+.mover-rank {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--muted); width: 18px;
+}
+.mover-sym {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+  flex: 1; margin-left: 6px;
+}
+.mover-name { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.mover-price { font-family: var(--font-mono); font-size: 12px; text-align: right; }
+.mover-chg {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+  min-width: 60px; text-align: right;
+  padding: 2px 6px; border-radius: 4px;
+}
+.mover-chg.pos { color: var(--green); background: rgba(0,201,122,.1); }
+.mover-chg.neg { color: var(--red); background: rgba(255,77,109,.1); }
+
+/* ── Loading & empty states ──────────────────────────────── */
+.loading {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 200px; gap: 12px;
+}
+.spinner {
+  width: 28px; height: 28px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+
+.skeleton {
+  background: linear-gradient(90deg, var(--border) 0%, var(--border2) 50%, var(--border) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 4px;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ── Ticker tape ─────────────────────────────────────────── */
+.ticker-wrap {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+  height: 34px;
+  display: flex; align-items: center;
+}
+.ticker-inner {
+  display: flex; gap: 0;
+  animation: ticker 40s linear infinite;
+  white-space: nowrap;
+}
+@keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.ticker-item {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0 20px;
+  border-right: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 11px;
+}
+.ticker-sym { color: var(--text); font-weight: 500; }
+.ticker-price { color: var(--muted); }
+.ticker-chg.pos { color: var(--green); }
+.ticker-chg.neg { color: var(--red); }
+
+/* ── Misc ────────────────────────────────────────────────── */
+.api-error {
+  background: rgba(255,77,109,.08);
+  border: 1px solid rgba(255,77,109,.2);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--red);
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .stat-row { grid-template-columns: repeat(2, 1fr); }
+  .two-col  { grid-template-columns: 1fr; }
+}
+@media (max-width: 800px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 17l4-8 4 4 4-6 4 10H3z"/></svg>
+        </div>
+        <div>
+          <div>StockPulse</div>
+          <div class="logo-sub">NSE Market Intelligence</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <input class="search-input" id="search" type="text" placeholder="Search symbol or name…" autocomplete="off" />
+    </div>
+
+    <div class="company-list" id="company-list">
+      <div class="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading companies…</div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="refresh-btn" onclick="refreshData()">↻ Refresh Data</button>
+      <div class="last-updated" id="last-updated">—</div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Loading…</div>
+      <div class="topbar-tabs">
+        <button class="tab-btn active" data-tab="overview"  onclick="switchTab('overview')">Overview</button>
+        <button class="tab-btn"        data-tab="chart"     onclick="switchTab('chart')">Chart</button>
+        <button class="tab-btn"        data-tab="compare"   onclick="switchTab('compare')">Compare</button>
+        <button class="tab-btn"        data-tab="movers"    onclick="switchTab('movers')">Movers</button>
+      </div>
+      <div class="topbar-right" id="period-controls">
+        <button class="period-btn active" data-days="30"  onclick="setPeriod(30)">1M</button>
+        <button class="period-btn"        data-days="90"  onclick="setPeriod(90)">3M</button>
+        <button class="period-btn"        data-days="180" onclick="setPeriod(180)">6M</button>
+        <button class="period-btn"        data-days="365" onclick="setPeriod(365)">1Y</button>
+      </div>
+    </div>
+
+    <div class="content" id="content">
+      <div class="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Connecting to market data…</div>
+      </div>
+    </div>
+
+    <!-- Ticker tape -->
+    <div class="ticker-wrap">
+      <div class="ticker-inner" id="ticker"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ── Config ─────────────────────────────────────────────────
+const API = 'http://localhost:8000';
+
+// ── State ──────────────────────────────────────────────────
+let companies    = [];
+let activeSymbol = null;
+let activePeriod = 30;
+let activeTab    = 'overview';
+let charts       = {};
+
+// ── Boot ───────────────────────────────────────────────────
+(async () => {
+  await loadCompanies();
+  if (companies.length) selectCompany(companies[0].symbol);
+  buildTicker();
+  setInterval(buildTicker, 60_000);
+})();
+
+// ── Data helpers ────────────────────────────────────────────
+async function api(path) {
+  const r = await fetch(API + path);
+  if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+  return r.json();
+}
+
+async function loadCompanies() {
+  try {
+    companies = await api('/companies');
+    renderSidebar(companies);
+    document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+  } catch(e) {
+    document.getElementById('company-list').innerHTML = `<div class="api-error">⚠ Cannot connect to API.<br>Make sure the backend is running on ${API}</div>`;
+  }
+}
+
+// ── Sidebar ─────────────────────────────────────────────────
+function renderSidebar(data) {
+  const sectors = [...new Set(data.map(c => c.sector))].sort();
+  let html = '';
+  sectors.forEach(sec => {
+    const items = data.filter(c => c.sector === sec);
+    html += `<div class="sector-label">${sec}</div>`;
+    items.forEach(c => {
+      const chgCls = (c.change_pct >= 0) ? 'pos' : 'neg';
+      const chgStr = c.change_pct != null ? `${c.change_pct >= 0 ? '+' : ''}${c.change_pct}%` : '—';
+      html += `
+        <div class="company-item" id="ci-${c.symbol}" onclick="selectCompany('${c.symbol}')">
+          <div class="co-left">
+            <div class="co-sym">${c.symbol}</div>
+            <div class="co-name">${c.name}</div>
+          </div>
+          <div class="co-right">
+            <div class="co-price">₹${c.latest_close != null ? fmtNum(c.latest_close) : '—'}</div>
+            <div class="co-chg ${chgCls}">${chgStr}</div>
+          </div>
+        </div>`;
+    });
+  });
+  document.getElementById('company-list').innerHTML = html;
+}
+
+// Search filter
+document.getElementById('search').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  companies.forEach(c => {
+    const el = document.getElementById(`ci-${c.symbol}`);
+    if (!el) return;
+    const visible = c.symbol.toLowerCase().includes(q) || c.name.toLowerCase().includes(q);
+    el.style.display = visible ? '' : 'none';
+  });
+});
+
+// ── Selection ────────────────────────────────────────────────
+function selectCompany(sym) {
+  document.querySelectorAll('.company-item').forEach(e => e.classList.remove('active'));
+  const el = document.getElementById(`ci-${sym}`);
+  if (el) el.classList.add('active');
+  activeSymbol = sym;
+  const co = companies.find(c => c.symbol === sym);
+  document.getElementById('topbar-title').textContent = co ? `${co.name} · ${sym}` : sym;
+  renderTab();
+}
+
+// ── Tabs ─────────────────────────────────────────────────────
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.getElementById('period-controls').style.display = (tab === 'movers' || tab === 'compare') ? 'none' : '';
+  renderTab();
+}
+
+function renderTab() {
+  destroyCharts();
+  if (activeTab === 'overview') renderOverview();
+  else if (activeTab === 'chart')   renderChartTab();
+  else if (activeTab === 'compare') renderCompareTab();
+  else if (activeTab === 'movers')  renderMoversTab();
+}
+
+function setPeriod(d) {
+  activePeriod = d;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.toggle('active', +b.dataset.days === d));
+  if (activeTab !== 'compare' && activeTab !== 'movers') renderTab();
+}
+
+// ── Overview tab ─────────────────────────────────────────────
+async function renderOverview() {
+  setContent(spinner());
+  try {
+    const [summary, raw] = await Promise.all([
+      api(`/summary/${activeSymbol}`),
+      api(`/data/${activeSymbol}?days=${activePeriod}`)
+    ]);
+    const latest = raw[raw.length - 1] || {};
+    const chgCls = (summary.total_return_pct >= 0) ? 'pos' : 'neg';
+
+    setContent(`
+      <div class="stat-row">
+        ${statCard('Latest Close', '₹'+fmtNum(latest.close), latest.daily_return != null ? (latest.daily_return >= 0 ? '+' : '')+latest.daily_return.toFixed(2)+'% today' : '', 'blue')}
+        ${statCard('52W High', '₹'+fmtNum(summary.week52_high), '', 'green')}
+        ${statCard('52W Low',  '₹'+fmtNum(summary.week52_low),  '', 'red')}
+        ${statCard('Volatility', summary.volatility_pct+'%', 'annualised', 'amber')}
+      </div>
+
+      <div class="two-col">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Price & Moving Averages</div>
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div>Close</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>MA7</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>MA20</div>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Daily Return (%)</div>
+          </div>
+          <div class="chart-wrap"><canvas id="returnChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Volume</div>
+          </div>
+          <div class="chart-wrap"><canvas id="volChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Momentum Score</div>
+            <div class="legend-item" style="font-family:var(--font-mono);font-size:10px;color:var(--muted)">0–100 composite</div>
+          </div>
+          <div class="chart-wrap"><canvas id="momentumChart"></canvas></div>
+        </div>
+      </div>
+    `);
+
+    drawPriceChart(raw);
+    drawReturnChart(raw);
+    drawVolumeChart(raw);
+    drawMomentumChart(raw);
+  } catch(e) {
+    setContent(`<div class="api-error">⚠ ${e.message}</div>`);
+  }
+}
+
+// ── Chart tab ────────────────────────────────────────────────
+async function renderChartTab() {
+  setContent(spinner());
+  try {
+    const raw = await api(`/data/${activeSymbol}?days=${activePeriod}`);
+    setContent(`
+      <div class="chart-card" style="flex:1">
+        <div class="chart-header">
+          <div class="chart-title">OHLC Candlestick-Style (Close Line)</div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Close</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>MA7</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6"></div>MA20</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:380px"><canvas id="bigChart"></canvas></div>
+      </div>
+    `);
+    drawBigChart(raw);
+  } catch(e) {
+    setContent(`<div class="api-error">⚠ ${e.message}</div>`);
+  }
+}
+
+// ── Compare tab ───────────────────────────────────────────────
+function renderCompareTab() {
+  const opts = companies.map(c => `<option value="${c.symbol}">${c.symbol} — ${c.name}</option>`).join('');
+  setContent(`
+    <div class="compare-controls">
+      <select class="compare-select" id="cmp1">${opts}</select>
+      <div class="compare-vs">vs</div>
+      <select class="compare-select" id="cmp2">${opts}</select>
+      <select class="compare-select" style="flex:0;width:80px" id="cmpDays">
+        <option value="30">1M</option>
+        <option value="90" selected>3M</option>
+        <option value="180">6M</option>
+        <option value="365">1Y</option>
+      </select>
+      <button class="compare-go" onclick="runCompare()">Compare →</button>
+    </div>
+    <div id="cmp-result"></div>
+  `);
+  // Pre-select active symbol
+  const s = document.getElementById('cmp1');
+  if (s) s.value = activeSymbol || companies[0]?.symbol;
+  const s2 = document.getElementById('cmp2');
+  if (s2 && companies[1]) s2.value = companies[1].symbol;
+}
+
+async function runCompare() {
+  const s1   = document.getElementById('cmp1').value;
+  const s2   = document.getElementById('cmp2').value;
+  const days = document.getElementById('cmpDays').value;
+  const res  = document.getElementById('cmp-result');
+  res.innerHTML = spinner();
+  try {
+    const data = await api(`/compare?symbol1=${s1}&symbol2=${s2}&days=${days}`);
+    const c1cls = data.return1_pct >= 0 ? 'pos' : 'neg';
+    const c2cls = data.return2_pct >= 0 ? 'pos' : 'neg';
+    res.innerHTML = `
+      <div class="corr-badge">
+        <div class="corr-item">
+          <div class="corr-label">Correlation</div>
+          <div class="corr-val">${data.correlation.toFixed(3)}</div>
+        </div>
+        <div class="corr-item">
+          <div class="corr-label">${s1} Return</div>
+          <div class="corr-val ${c1cls}">${data.return1_pct >= 0 ? '+' : ''}${data.return1_pct}%</div>
+        </div>
+        <div class="corr-item">
+          <div class="corr-label">${s2} Return</div>
+          <div class="corr-val ${c2cls}">${data.return2_pct >= 0 ? '+' : ''}${data.return2_pct}%</div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Normalised Performance (Base 100)</div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>${s1}</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div>${s2}</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:320px"><canvas id="cmpChart"></canvas></div>
+      </div>`;
+    drawCompareChart(data);
+  } catch(e) {
+    res.innerHTML = `<div class="api-error">⚠ ${e.message}</div>`;
+  }
+}
+
+// ── Movers tab ────────────────────────────────────────────────
+async function renderMoversTab() {
+  setContent(spinner());
+  try {
+    const data = await api('/top-movers?n=5');
+    const mkRow = (m, i) => {
+      const cls = m.change_pct >= 0 ? 'pos' : 'neg';
+      return `
+        <div class="mover-row" onclick="selectCompany('${m.symbol}');switchTab('overview')">
+          <div class="mover-rank">${i+1}</div>
+          <div class="mover-sym">
+            ${m.symbol}
+            <div class="mover-name">${m.name}</div>
+          </div>
+          <div>
+            <div class="mover-price">₹${fmtNum(m.close)}</div>
+          </div>
+          <div class="mover-chg ${cls}">${m.change_pct >= 0 ? '+' : ''}${m.change_pct}%</div>
+        </div>`;
+    };
+    setContent(`
+      <div class="movers-row">
+        <div class="movers-card">
+          <div class="movers-head">
+            <div class="movers-head-label">Top Gainers</div>
+            <div class="movers-badge gain">▲ Today</div>
+          </div>
+          ${data.gainers.map(mkRow).join('')}
+        </div>
+        <div class="movers-card">
+          <div class="movers-head">
+            <div class="movers-head-label">Top Losers</div>
+            <div class="movers-badge loss">▼ Today</div>
+          </div>
+          ${data.losers.map(mkRow).join('')}
+        </div>
+      </div>
+    `);
+  } catch(e) {
+    setContent(`<div class="api-error">⚠ ${e.message}</div>`);
+  }
+}
+
+// ── Chart builders ────────────────────────────────────────────
+const CHART_DEFAULTS = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: {
+    backgroundColor: '#141920', borderColor: '#1e2730', borderWidth: 1,
+    titleColor: '#5a6a7a', bodyColor: '#e2eaf4',
+    titleFont: { family: 'JetBrains Mono', size: 10 },
+    bodyFont:  { family: 'JetBrains Mono', size: 11 },
+    padding: 10, cornerRadius: 6,
+  }},
+  scales: {
+    x: { grid: { color: '#1e2730' }, ticks: { color: '#5a6a7a', font: { family: 'JetBrains Mono', size: 9 }, maxTicksLimit: 8 } },
+    y: { grid: { color: '#1e2730' }, ticks: { color: '#5a6a7a', font: { family: 'JetBrains Mono', size: 9 } }, position: 'right' },
+  },
+};
+
+function makeChart(id, cfg) {
+  destroyChart(id);
+  const ctx = document.getElementById(id);
+  if (!ctx) return null;
+  const chart = new Chart(ctx, cfg);
+  charts[id] = chart;
+  return chart;
+}
+
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+function destroyCharts() { Object.keys(charts).forEach(destroyChart); }
+
+function drawPriceChart(raw) {
+  const labels = raw.map(d => shortDate(d.date));
+  makeChart('priceChart', { type: 'line', data: {
+    labels,
+    datasets: [
+      { label: 'Close', data: raw.map(d=>d.close), borderColor: '#0099ff', borderWidth: 1.5, pointRadius: 0, tension: 0.3, fill: true, backgroundColor: ctx => gradient(ctx,'#0099ff','rgba(0,153,255,0)') },
+      { label: 'MA7',   data: raw.map(d=>d.ma_7),  borderColor: '#ffb340', borderWidth: 1, pointRadius: 0, tension: 0.3, borderDash: [4,4] },
+      { label: 'MA20',  data: raw.map(d=>d.ma_20), borderColor: '#ff4d6d', borderWidth: 1, pointRadius: 0, tension: 0.3, borderDash: [6,3] },
+    ]
+  }, options: { ...CHART_DEFAULTS } });
+}
+
+function drawReturnChart(raw) {
+  makeChart('returnChart', { type: 'bar', data: {
+    labels: raw.map(d=>shortDate(d.date)),
+    datasets: [{ label: 'Daily Return %', data: raw.map(d=>d.daily_return),
+      backgroundColor: raw.map(d => (d.daily_return||0) >= 0 ? 'rgba(0,201,122,.5)' : 'rgba(255,77,109,.5)'),
+      borderColor:     raw.map(d => (d.daily_return||0) >= 0 ? '#00c97a' : '#ff4d6d'),
+      borderWidth: 1, borderRadius: 2,
+    }]
+  }, options: { ...CHART_DEFAULTS } });
+}
+
+function drawVolumeChart(raw) {
+  makeChart('volChart', { type: 'bar', data: {
+    labels: raw.map(d=>shortDate(d.date)),
+    datasets: [{ label: 'Volume', data: raw.map(d=>d.volume),
+      backgroundColor: 'rgba(0,229,160,.25)', borderColor: 'rgba(0,229,160,.6)', borderWidth: 1, borderRadius: 2,
+    }]
+  }, options: { ...CHART_DEFAULTS, scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => fmtVol(v) } } } } });
+}
+
+function drawMomentumChart(raw) {
+  makeChart('momentumChart', { type: 'line', data: {
+    labels: raw.map(d=>shortDate(d.date)),
+    datasets: [{ label: 'Momentum', data: raw.map(d=>d.momentum_score),
+      borderColor: '#8b5cf6', borderWidth: 1.5, pointRadius: 0, tension: 0.4,
+      fill: true, backgroundColor: ctx => gradient(ctx,'rgba(139,92,246,.4)','rgba(139,92,246,0)'),
+    }]
+  }, options: { ...CHART_DEFAULTS, scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, min: 0, max: 100 } } } });
+}
+
+function drawBigChart(raw) {
+  makeChart('bigChart', { type: 'line', data: {
+    labels: raw.map(d=>d.date),
+    datasets: [
+      { label: 'Close', data: raw.map(d=>d.close), borderColor: '#00e5a0', borderWidth: 2, pointRadius: 0, tension: 0.2, fill: true, backgroundColor: ctx => gradient(ctx,'rgba(0,229,160,.25)','rgba(0,229,160,0)') },
+      { label: 'MA7',   data: raw.map(d=>d.ma_7),  borderColor: '#ffb340', borderWidth: 1.2, pointRadius: 0, tension: 0.3, borderDash: [4,4] },
+      { label: 'MA20',  data: raw.map(d=>d.ma_20), borderColor: '#8b5cf6', borderWidth: 1.2, pointRadius: 0, tension: 0.3, borderDash: [6,4] },
+    ]
+  }, options: { ...CHART_DEFAULTS } });
+}
+
+function drawCompareChart(data) {
+  const s1 = data.symbol1, s2 = data.symbol2;
+  makeChart('cmpChart', { type: 'line', data: {
+    labels: data.series.map(d=>shortDate(d.date)),
+    datasets: [
+      { label: s1, data: data.series.map(d=>d[`norm_${s1}`]), borderColor: '#00e5a0', borderWidth: 2, pointRadius: 0, tension: 0.3 },
+      { label: s2, data: data.series.map(d=>d[`norm_${s2}`]), borderColor: '#0099ff', borderWidth: 2, pointRadius: 0, tension: 0.3 },
+    ]
+  }, options: { ...CHART_DEFAULTS } });
+}
+
+// ── Ticker tape ───────────────────────────────────────────────
+function buildTicker() {
+  if (!companies.length) return;
+  const items = [...companies, ...companies].map(c => {
+    const cls = (c.change_pct||0) >= 0 ? 'pos' : 'neg';
+    const chg = c.change_pct != null ? `${c.change_pct >= 0 ? '+' : ''}${c.change_pct}%` : '—';
+    return `<div class="ticker-item">
+      <span class="ticker-sym">${c.symbol}</span>
+      <span class="ticker-price">₹${c.latest_close != null ? fmtNum(c.latest_close) : '—'}</span>
+      <span class="ticker-chg ${cls}">${chg}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('ticker').innerHTML = items;
+}
+
+// ── Refresh ────────────────────────────────────────────────────
+async function refreshData() {
+  try {
+    await fetch(API + '/refresh', { method: 'POST' });
+    setTimeout(async () => {
+      await loadCompanies();
+      if (activeSymbol) renderTab();
+      buildTicker();
+    }, 3000);
+  } catch(e) { alert('Could not reach API.'); }
+}
+
+// ── Utils ──────────────────────────────────────────────────────
+function setContent(html) { document.getElementById('content').innerHTML = html; }
+function spinner() { return `<div class="loading"><div class="spinner"></div><div class="loading-text">Loading…</div></div>`; }
+
+function statCard(label, val, sub, color) {
+  const cls = typeof val === 'string' && val.startsWith('+') ? 'pos' : '';
+  return `<div class="stat-card ${color}">
+    <div class="stat-label">${label}</div>
+    <div class="stat-val">${val}</div>
+    ${sub ? `<div class="stat-sub">${sub}</div>` : ''}
+  </div>`;
+}
+
+function gradient(ctx, from, to) {
+  const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, ctx.chart.height);
+  g.addColorStop(0, from); g.addColorStop(1, to);
+  return g;
+}
+
+function fmtNum(n) {
+  if (n == null) return '—';
+  return Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+}
+
+function fmtVol(n) {
+  if (n >= 1e7) return (n/1e7).toFixed(1)+'Cr';
+  if (n >= 1e5) return (n/1e5).toFixed(1)+'L';
+  return n;
+}
+
+function shortDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  return dt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+}
+</script>
+</body>
+</html>

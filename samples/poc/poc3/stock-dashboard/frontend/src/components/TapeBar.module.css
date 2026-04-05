@@ -1,0 +1,35 @@
+.tape {
+  height: 28px;
+  background: var(--s1);
+  border-bottom: 1px solid var(--ln);
+  overflow: hidden;
+  display: flex; align-items: center;
+  flex-shrink: 0;
+  position: relative;
+}
+.tape::before, .tape::after {
+  content: ''; position: absolute; top: 0; height: 100%; width: 50px; z-index: 2;
+}
+.tape::before { left: 0; background: linear-gradient(90deg, var(--s1), transparent); }
+.tape::after  { right: 0; background: linear-gradient(-90deg, var(--s1), transparent); }
+
+.inner {
+  display: flex; align-items: center;
+  white-space: nowrap;
+  animation: scroll 60s linear infinite;
+}
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.item {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 0 18px;
+  border-right: 1px solid var(--ln);
+  font-family: var(--f-mono); font-size: 10px;
+}
+.sym   { color: var(--txt); letter-spacing: .5px; }
+.price { color: var(--txt2); }
+.up    { color: var(--teal); }
+.dn    { color: var(--red); }

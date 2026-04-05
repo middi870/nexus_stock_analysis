@@ -1,0 +1,12 @@
+.wrap { display: flex; flex-direction: column; gap: 12px; }
+.legend { display: flex; gap: 14px; font-family: var(--f-mono); font-size: 9px; color: var(--txt2); }
+.bigChartWrap { padding: 6px 8px 8px; }
+.subChartWrap { padding: 4px 8px 8px; }
+.tooltip {
+  background: var(--s2); border: 1px solid var(--ln2);
+  border-radius: var(--radius); padding: 8px 12px;
+  font-family: var(--f-mono); font-size: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.5);
+}
+.ttDate { color: var(--txt2); margin-bottom: 5px; font-size: 9px; }
+.ttRow  { display: flex; justify-content: space-between; gap: 16px; color: var(--txt); }

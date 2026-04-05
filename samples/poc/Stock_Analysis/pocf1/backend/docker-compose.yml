@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    container_name: backend_api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/app
+      - REDIS_URL=redis://redis:6379
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    restart: always   # ✅ auto-restart if crash
+
+  db:
+    image: postgres:15
+    container_name: backend_db
+    restart: always
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "6000:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data   # ✅ persist DB
+
+  redis:
+    image: redis:7
+    container_name: backend_redis
+    ports:
+      - "6379:6379"
+    restart: always
+    volumes:
+      - redis_data:/data   # ✅ persist cache (optional)
+
+volumes:
+  postgres_data:
+  redis_data:

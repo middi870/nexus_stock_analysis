@@ -1,0 +1,37 @@
+.bar {
+  width:220px; flex-shrink:0;
+  background:var(--s1); border-left:1px solid var(--b1);
+  display:flex; flex-direction:column; overflow-y:auto; gap:0;
+}
+
+.divider { height:1px; background:var(--b1); flex-shrink:0; }
+
+/* Price block */
+.priceBlock { padding:12px 13px; flex-shrink:0; }
+.symLine    { display:flex; align-items:center; gap:6px; margin-bottom:1px; }
+.sym        { font-family:var(--mono); font-size:13px; font-weight:700; color:var(--t1); }
+.secBadge   { font-size:8px; color:var(--t3); background:var(--s3); border:1px solid var(--b1); padding:1px 5px; border-radius:3px; }
+.nameLine   { font-size:9px; color:var(--t2); margin-bottom:7px; }
+.priceRow   { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+.price      { font-family:var(--mono); font-size:20px; font-weight:600; line-height:1; }
+.prevClose  { font-family:var(--mono); font-size:9px; color:var(--t3); margin-left:2px; }
+.up { color:var(--g); }
+.dn { color:var(--r); }
+
+/* Sections */
+.section      { padding:8px 13px; }
+.sectionTitle { font-size:8px; font-weight:600; color:var(--t4); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:7px; }
+.kpiGrid      { display:grid; grid-template-columns:1fr 1fr; gap:6px 4px; }
+.kpi          { display:flex; flex-direction:column; gap:1px; }
+.kpiLabel     { font-size:8px; color:var(--t4); text-transform:uppercase; letter-spacing:.8px; }
+.kpiVal       { font-size:11px; color:var(--t1); }
+.mono         { font-family:var(--mono); }
+
+/* Range bar */
+.rangeSection { padding:8px 13px 12px; }
+.range        { display:flex; flex-direction:column; gap:5px; }
+.rangeBar     { height:5px; background:var(--s3); border-radius:3px; position:relative; }
+.rangeFill    { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--r),var(--amber),var(--g)); transition:width .6s ease; }
+.rangeThumb   { position:absolute; top:50%; width:10px; height:10px; background:var(--t1); border-radius:50%; border:2px solid var(--s1); transform:translate(-50%,-50%); box-shadow:0 0 4px rgba(255,255,255,.25); transition:left .6s ease; }
+.rangeLabels  { display:flex; justify-content:space-between; font-family:var(--mono); font-size:8px; color:var(--t2); }
+.rangeCenter  { color:var(--t3); font-size:8px; }

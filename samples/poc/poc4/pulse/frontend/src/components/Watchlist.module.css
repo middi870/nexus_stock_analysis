@@ -1,0 +1,103 @@
+.sidebar {
+  width: 252px; flex-shrink: 0;
+  background: var(--bg1);
+  border-right: 1px solid var(--b1);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+/* Market summary strip */
+.marketSummary {
+  display: flex; flex-shrink: 0;
+  border-bottom: 1px solid var(--b1);
+  padding: 8px 12px; gap: 0;
+}
+.summaryCell    { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.summaryDivider { width: 1px; background: var(--b1); margin: 0 10px; }
+.summaryLabel   { font-size: 9px; color: var(--t3); text-transform: uppercase; letter-spacing: 1px; }
+.summaryVal     { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10px; }
+.summarySymbol  { color: var(--t1); font-weight: 600; cursor: pointer; }
+.summarySymbol:hover { color: var(--green); }
+
+/* Head */
+.head {
+  padding: 8px 10px; border-bottom: 1px solid var(--b1);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.headLeft { display: flex; gap: 2px; }
+.viewBtn {
+  font-size: 10px; font-weight: 500; padding: 3px 8px;
+  border-radius: 3px; color: var(--t3); transition: all .15s;
+}
+.viewBtn:hover { color: var(--t2); }
+.viewOn { color: var(--t1) !important; background: var(--bg3); }
+
+.sortSel {
+  font-size: 9px; background: var(--bg3); border: 1px solid var(--b2);
+  color: var(--t2); padding: 2px 6px; border-radius: 3px; outline: none;
+}
+
+/* Column headers */
+.colHdr {
+  display: flex; justify-content: space-between;
+  padding: 4px 12px; flex-shrink: 0;
+  font-size: 9px; color: var(--t4);
+  text-transform: uppercase; letter-spacing: 1px;
+  border-bottom: 1px solid var(--b1);
+}
+
+/* List */
+.list { flex: 1; overflow-y: auto; }
+
+.rowWrap { position: relative; }
+.watchBtn {
+  position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+  font-size: 11px; color: var(--t4); opacity: 0;
+  transition: opacity .15s, color .15s;
+  padding: 2px;
+}
+.rowWrap:hover .watchBtn { opacity: 1; }
+.watched { color: var(--amber) !important; opacity: 1 !important; }
+
+.row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background .1s;
+}
+.row:hover    { background: rgba(255,255,255,.02); }
+.rowActive    { background: rgba(14,203,129,.05) !important; border-left-color: var(--green); }
+
+.rowLeft  { display: flex; flex-direction: column; gap: 2px; }
+.sym      { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--t1); }
+.sector   { font-size: 9px; color: var(--t3); }
+
+.rowRight { text-align: right; display: flex; flex-direction: column; gap: 3px; }
+.price    { font-family: var(--mono); font-size: 12px; font-weight: 500; }
+.chgRow   { display: flex; align-items: center; gap: 6px; justify-content: flex-end; }
+.chg      { font-family: var(--mono); font-size: 10px; }
+.up { color: var(--green); }
+.dn { color: var(--red); }
+
+.miniBar     { width: 36px; height: 3px; background: var(--b2); border-radius: 2px; overflow: hidden; }
+.miniBarFill { height: 100%; border-radius: 2px; transition: width .4s ease; }
+.barUp { background: var(--green); }
+.barDn { background: var(--red); }
+
+/* Sector bar */
+.sectorBar {
+  border-top: 1px solid var(--b1); flex-shrink: 0;
+  max-height: 180px; overflow-y: auto;
+}
+.sectorLabel {
+  padding: 6px 12px 3px;
+  font-size: 9px; color: var(--t4);
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.secRow {
+  display: flex; justify-content: space-between;
+  padding: 4px 12px;
+}
+.secName { font-size: 10px; color: var(--t2); }
+.secChg  { font-family: var(--mono); font-size: 10px; }

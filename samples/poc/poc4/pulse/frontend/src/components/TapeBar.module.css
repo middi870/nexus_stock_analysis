@@ -1,0 +1,15 @@
+.tape {
+  height: 26px; flex-shrink: 0;
+  background: var(--bg1); border-bottom: 1px solid var(--b1);
+  overflow: hidden; display: flex; align-items: center;
+  position: relative;
+}
+.tape::before,.tape::after{content:'';position:absolute;top:0;height:100%;width:50px;z-index:2;pointer-events:none}
+.tape::before{left:0;background:linear-gradient(90deg,var(--bg1),transparent)}
+.tape::after{right:0;background:linear-gradient(-90deg,var(--bg1),transparent)}
+.inner{display:flex;white-space:nowrap;animation:scroll 70s linear infinite}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.item{display:inline-flex;align-items:center;gap:7px;padding:0 16px;border-right:1px solid var(--b1);font-family:var(--mono);font-size:10px}
+.sym{color:var(--t1);font-weight:600;letter-spacing:.5px}
+.price{color:var(--t2)}
+.up{color:var(--green)}.dn{color:var(--red)}

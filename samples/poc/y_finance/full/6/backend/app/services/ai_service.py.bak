@@ -1,0 +1,157 @@
+import os
+import httpx
+import json
+
+from app.services.cache_service import get_cache, set_cache
+
+
+PROVIDERS = {
+    "ollama": {
+        "base_url": "http://host.docker.internal:11434",
+        "model": "llama3"
+    },
+    "openai": {
+        "base_url": "https://api.openai.com",
+        "model": "gpt-4o-mini"
+    },
+    "openrouter": {
+        "base_url": "https://openrouter.ai/api",
+        "model": "meta-llama/llama-3-8b-instruct"
+    },
+}
+
+
+def get_api_key(provider):
+    return {
+        "openai": os.getenv("OPENAI_API_KEY"),
+        "openrouter": os.getenv("OPENROUTER_API_KEY"),
+    }.get(provider)
+
+
+def build_prompt(symbol, data):
+    return f"""
+Explain why this stock is moving.
+
+Stock: {symbol}
+
+Price: {data.get("close")}
+RSI: {data.get("rsi")}
+MACD: {data.get("macd")}
+Signal: {data.get("macd_signal")}
+MA20: {data.get("ma20")}
+MA50: {data.get("ma50")}
+
+Keep it simple.
+"""
+
+
+async def is_ollama_alive():
+    try:
+        async with httpx.AsyncClient(timeout=2) as client:
+            res = await client.get("http://host.docker.internal:11434/api/tags")
+            return res.status_code == 200
+    except:
+        return False
+
+
+def cache_key(symbol, data):
+    return f"ai:{symbol}:{hash(json.dumps(data, default=str))}"
+
+
+# 🔥 MAIN
+async def get_ai_insight(symbol, data, provider="auto"):
+    prompt = build_prompt(symbol, data)
+
+    # cache
+    key = cache_key(symbol, data)
+    cached = await get_cache(key)
+    if cached:
+        return cached
+
+    # auto provider
+    if provider == "auto":
+        if await is_ollama_alive():
+            provider = "ollama"
+        else:
+            provider = "openrouter"
+
+    try:
+        response = await call_provider(provider, prompt)
+    except Exception as e:
+        print("❌ Primary AI failed:", e)
+
+        try:
+            response = await call_provider("openrouter", prompt)
+        except Exception as e2:
+            response = f"All AI providers failed: {str(e2)}"
+
+    # ✅ cache always saved
+    await set_cache(key, response, expire=300)
+
+    return response
+
+
+async def call_provider(provider, prompt):
+    config = PROVIDERS[provider]
+
+    if provider == "ollama":
+        return await call_ollama(config, prompt)
+
+    return await call_openai_compatible(config, prompt, provider)
+
+
+# 🔥 OLLAMA
+async def call_ollama(config, prompt):
+    async with httpx.AsyncClient(timeout=60) as client:
+        res = await client.post(
+            f"{config['base_url']}/api/chat",
+            json={
+                "model": config["model"],
+                "messages": [{"role": "user", "content": prompt}],
+                "stream": False
+            }
+        )
+
+        # 🔥 ADD THIS
+        res.raise_for_status()
+        print("STATUS:", res.status_code)
+        print("TEXT:", res.text)
+
+        data = res.json()
+
+        print("🔥 OLLAMA RESPONSE:", data)
+
+        if "message" in data:
+            return data["message"]["content"]
+
+        raise Exception(f"Ollama invalid response: {data}")
+
+
+
+# 🔥 OPENAI / OPENROUTER
+async def call_openai_compatible(config, prompt, provider):
+    api_key = get_api_key(provider)
+
+    if not api_key:
+        raise Exception(f"{provider} API key missing")
+
+    async with httpx.AsyncClient(timeout=60) as client:
+        res = await client.post(
+            f"{config['base_url']}/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": config["model"],
+                "messages": [{"role": "user", "content": prompt}]
+            }
+        )
+
+        data = res.json()
+        print("AI RESPONSE:", data)
+
+        if "choices" in data:
+            return data["choices"][0]["message"]["content"]
+
+        raise Exception(f"{provider} failed: {data}")

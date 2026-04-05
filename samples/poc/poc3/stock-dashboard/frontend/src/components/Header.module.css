@@ -1,0 +1,58 @@
+.hdr {
+  height: 50px; flex-shrink: 0;
+  background: var(--s1);
+  border-bottom: 1px solid var(--ln);
+  display: flex; align-items: center;
+  padding: 0 16px; gap: 14px;
+}
+.logo { display: flex; align-items: center; gap: 9px; flex-shrink: 0; }
+.mark {
+  width: 26px; height: 26px; border-radius: 4px;
+  background: var(--teal);
+  display: grid; place-items: center; flex-shrink: 0;
+}
+.logoWord { font-family: var(--f-disp); font-size: 20px; letter-spacing: 3px; line-height: 1; }
+.logoSub  { font-family: var(--f-mono); font-size: 8px; color: var(--txt3); letter-spacing: 1px; }
+
+.sep { width: 1px; height: 22px; background: var(--ln2); flex-shrink: 0; }
+
+.live {
+  display: flex; align-items: center; gap: 5px;
+  font-family: var(--f-mono); font-size: 9px; color: var(--txt2); flex-shrink: 0;
+}
+.dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 6px var(--green);
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.nav { display: flex; gap: 2px; }
+.navBtn {
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: .5px;
+  padding: 5px 12px; border-radius: 4px;
+  border: 1px solid transparent; color: var(--txt3);
+  transition: all .15s; text-transform: capitalize;
+}
+.navBtn:hover { color: var(--txt2); background: var(--s3); }
+.navOn { color: var(--teal) !important; border-color: rgba(0,255,179,.25) !important; background: var(--teal-g) !important; }
+
+.periods { display: flex; gap: 2px; flex-shrink: 0; }
+.per {
+  font-family: var(--f-mono); font-size: 10px;
+  padding: 4px 9px; border-radius: 3px;
+  border: 1px solid var(--ln2); color: var(--txt3);
+  transition: all .15s;
+}
+.per:hover { color: var(--txt); }
+.perOn { border-color: var(--teal) !important; color: var(--teal) !important; background: var(--teal-g) !important; }
+
+.search {
+  margin-left: auto;
+  background: var(--s3); border: 1px solid var(--ln2);
+  color: var(--txt); font-family: var(--f-mono); font-size: 10px;
+  padding: 5px 10px; border-radius: var(--radius); outline: none;
+  width: 160px; transition: border-color .2s;
+}
+.search:focus { border-color: rgba(0,255,179,.35); }
+.search::placeholder { color: var(--txt3); }

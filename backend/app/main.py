@@ -72,11 +72,11 @@ app.include_router(screener.router)
 app.include_router(ai.router)
 
 
-# Health Check
-@app.get("/health")
-def health():
-    return {"status": "ok"}
-    
+# # Health Check
+# @app.get("/health")
+# def health():
+#     return {"status": "ok"}
+
 # ── Admin endpoints ───────────────────────────────────────────────────────────
 
 @app.post("/refresh", tags=["Admin"])

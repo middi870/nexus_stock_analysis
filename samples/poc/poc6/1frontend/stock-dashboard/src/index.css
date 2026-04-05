@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #090c12;
+  color: #e8edf5;
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar        { width: 4px; height: 4px; }
+::-webkit-scrollbar-track  { background: #0d1117; }
+::-webkit-scrollbar-thumb  { background: #1e2d3d; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #2a3f57; }
+
+/* Shimmer skeleton */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #111820 25%,
+    #161e2a 50%,
+    #111820 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* Grid line bg */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(30, 45, 61, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 45, 61, 0.3) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Glow text */
+.glow-cyan { text-shadow: 0 0 12px rgba(0, 212, 255, 0.5); }
+.glow-green { text-shadow: 0 0 12px rgba(0, 230, 118, 0.5); }
+
+/* Chart tooltip custom */
+.custom-tooltip {
+  background: #111820 !important;
+  border: 1px solid #1e2d3d !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+}
+
+/* Transition for page */
+.page-enter {
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Number ticker */
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.num-anim { animation: count-up 0.4s ease-out; }

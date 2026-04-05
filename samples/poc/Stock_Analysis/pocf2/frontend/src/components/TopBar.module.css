@@ -1,0 +1,73 @@
+.wrap { flex-shrink:0; display:flex; flex-direction:column; }
+
+/* Tape */
+.tapeBar { height:24px; background:var(--bg); border-bottom:1px solid var(--b1); overflow:hidden; position:relative; }
+.tapeBar::before,.tapeBar::after { content:''; position:absolute; top:0; height:100%; width:40px; z-index:2; pointer-events:none; }
+.tapeBar::before { left:0;  background:linear-gradient(90deg,var(--bg),transparent); }
+.tapeBar::after  { right:0; background:linear-gradient(-90deg,var(--bg),transparent); }
+.tapeInner { display:flex; white-space:nowrap; animation:scroll 65s linear infinite; }
+@keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.tape      { display:inline-flex; align-items:center; gap:6px; padding:0 14px; border-right:1px solid var(--b1); font-family:var(--mono); font-size:10px; }
+.tapeSym   { color:var(--t1); font-weight:600; }
+.tapePrice { color:var(--t2); }
+.tapeUp    { color:var(--g); }
+.tapeDn    { color:var(--r); }
+
+/* Header */
+.header {
+  height:46px; background:var(--s1); border-bottom:1px solid var(--b1);
+  display:flex; align-items:center; padding:0 14px; gap:12px;
+}
+.logo      { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.logoMark  { width:24px; height:24px; border-radius:4px; background:var(--g); display:grid; place-items:center; }
+.logoName  { font-size:14px; font-weight:700; letter-spacing:1.5px; }
+.logoV     { font-size:10px; color:var(--g); font-weight:500; }
+.logoTag   { font-family:var(--mono); font-size:8px; color:var(--t4); letter-spacing:.8px; }
+.divider   { width:1px; height:20px; background:var(--b1); flex-shrink:0; }
+.spacer    { flex:1; }
+
+/* Indices */
+.indices { display:flex; gap:0; }
+.index   { display:flex; align-items:center; gap:6px; padding:0 13px; border-right:1px solid var(--b1); }
+.idxName { font-size:9px; color:var(--t3); font-weight:600; white-space:nowrap; }
+.idxVal  { font-family:var(--mono); font-size:11px; color:var(--t1); transition:color .3s; }
+.idxUp   { font-family:var(--mono); font-size:10px; color:var(--g); }
+.idxDn   { font-family:var(--mono); font-size:10px; color:var(--r); }
+
+/* Nav */
+.nav    { display:flex; gap:2px; }
+.navBtn {
+  font-size:10px; font-weight:500; padding:5px 12px; border-radius:4px;
+  border:1px solid transparent; color:var(--t3);
+  transition:all .15s; white-space:nowrap;
+}
+.navBtn:hover { color:var(--t2); background:var(--s3); }
+.navOn { color:var(--t1) !important; border-color:var(--b2) !important; background:var(--s3) !important; }
+
+/* Clock */
+.clock     { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+.mktDot    { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+.mktOpen   { background:var(--g); box-shadow:0 0 5px var(--g); animation:blink 2s ease-in-out infinite; }
+.mktClosed { background:var(--t3); }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:.3} }
+.mktLabel  { font-size:9px; color:var(--t2); }
+.mktTime   { font-family:var(--mono); font-size:10px; color:var(--t3); }
+
+/* Refresh */
+.refreshBtn { color:var(--t3); padding:4px; border-radius:var(--rr); transition:all .15s; }
+.refreshBtn:hover { color:var(--g); background:var(--gg); }
+.refreshBtn:disabled { opacity:.4; cursor:not-allowed; }
+.refreshing svg { animation:spin .7s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* Search */
+.searchWrap { position:relative; flex-shrink:0; display:flex; align-items:center; }
+.searchIco  { position:absolute; left:8px; top:50%; transform:translateY(-50%); color:var(--t3); pointer-events:none; }
+.search {
+  background:var(--s3); border:1px solid var(--b1); color:var(--t1);
+  font-size:11px; padding:5px 30px 5px 24px; border-radius:var(--rr);
+  outline:none; width:170px; transition:border-color .2s;
+}
+.search:focus { border-color:rgba(0,214,143,.4); }
+.search::placeholder { color:var(--t4); }
+.kbd { position:absolute; right:7px; top:50%; transform:translateY(-50%); font-family:var(--mono); font-size:9px; color:var(--t4); background:var(--s4); border:1px solid var(--b1); border-radius:2px; padding:1px 4px; }

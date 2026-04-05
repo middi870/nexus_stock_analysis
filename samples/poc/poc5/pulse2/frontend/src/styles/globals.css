@@ -1,0 +1,163 @@
+/* ═══════════════════════════════════════════════════════════
+   PULSE v2 — Precision Terminal Design System
+   Aesthetic: Bloomberg × Zerodha Kite — high-density, exact
+═══════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@300;400;500;600&display=swap');
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+:root {
+  /* Surfaces — true deep navy-black */
+  --bg:     #070B12;
+  --s1:     #0B1019;
+  --s2:     #0F1520;
+  --s3:     #131B28;
+  --s4:     #172030;
+  --card:   #0D1420;
+
+  /* Borders */
+  --b1:     #1B2840;
+  --b2:     #223350;
+  --b3:     #2A3D60;
+
+  /* Brand green */
+  --g:      #00D68F;
+  --gd:     rgba(0,214,143,.12);
+  --gg:     rgba(0,214,143,.06);
+  --gl:     rgba(0,214,143,.04);
+
+  /* Brand red */
+  --r:      #FF3B57;
+  --rd:     rgba(255,59,87,.12);
+  --rg:     rgba(255,59,87,.06);
+
+  /* Accent blue */
+  --blue:   #3D8EFF;
+  --blued:  rgba(61,142,255,.15);
+
+  /* Accent amber (AI) */
+  --amber:  #F5A623;
+  --amberd: rgba(245,166,35,.15);
+
+  /* Text */
+  --t1:  #E8F0FC;
+  --t2:  #8AA0BE;
+  --t3:  #4D6080;
+  --t4:  #2A3850;
+
+  /* Indicator colors */
+  --purple: #B48FFF;
+  --cyan:   #00D4FF;
+  --yellow: #FFD700;
+  --orange: #FF8C42;
+
+  --ui:   'Geist', sans-serif;
+  --mono: 'Geist Mono', monospace;
+  --rr:   4px;
+  --rr2:  7px;
+}
+
+html,body,#root { height:100%; overflow:hidden; }
+body {
+  font-family: var(--ui);
+  background: var(--bg);
+  color: var(--t1);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Precision grid overlay */
+body::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:9998;
+  background-image: linear-gradient(rgba(255,255,255,.008) 1px,transparent 1px),
+                    linear-gradient(90deg,rgba(255,255,255,.008) 1px,transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Top vignette */
+body::before {
+  content:''; position:fixed; top:0; left:0; right:0; height:60px;
+  background: linear-gradient(180deg,rgba(7,11,18,.4),transparent);
+  pointer-events:none; z-index:9997;
+}
+
+::-webkit-scrollbar      { width:3px; height:3px; }
+::-webkit-scrollbar-track{ background:transparent; }
+::-webkit-scrollbar-thumb{ background:var(--b2); border-radius:2px; }
+
+button  { cursor:pointer; border:none; background:none; font-family:var(--ui); }
+input,select,textarea { font-family:var(--ui); }
+select option { background: var(--s2); }
+
+/* ── Layout ─────────────────────────────────────── */
+.app  { display:flex; flex-direction:column; height:100%; overflow:hidden; }
+.workspace { flex:1; display:flex; overflow:hidden; min-height:0; }
+
+/* ── Cards ──────────────────────────────────────── */
+.card {
+  background:var(--card); border:1px solid var(--b1);
+  border-radius:var(--rr2); overflow:hidden;
+}
+.card-h {
+  padding:8px 14px; border-bottom:1px solid var(--b1);
+  display:flex; align-items:center; justify-content:space-between;
+  flex-shrink:0;
+}
+.card-label {
+  font-size:9px; font-weight:600;
+  text-transform:uppercase; letter-spacing:1.5px; color:var(--t3);
+}
+
+/* ── Numeric utils ──────────────────────────────── */
+.up  { color:var(--g)  !important; }
+.dn  { color:var(--r)  !important; }
+.neu { color:var(--t2) !important; }
+.mono{ font-family:var(--mono); }
+
+/* ── Badge/chip ─────────────────────────────────── */
+.badge {
+  display:inline-flex; align-items:center;
+  font-family:var(--mono); font-size:9px;
+  padding:2px 6px; border-radius:3px;
+}
+.badge-up { color:var(--g); background:var(--gd); }
+.badge-dn { color:var(--r); background:var(--rd); }
+.badge-neu{ color:var(--t2);background:var(--s3); }
+.badge-blue { color:var(--blue); background:var(--blued); }
+
+/* ── Spinner ────────────────────────────────────── */
+.spin-center { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; height:100%; color:var(--t3); }
+.spinner { width:18px; height:18px; border:2px solid var(--b2); border-top-color:var(--g); border-radius:50%; animation:spin .55s linear infinite; }
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-txt { font-family:var(--mono); font-size:9px; letter-spacing:1px; text-transform:uppercase; }
+
+/* ── Error ──────────────────────────────────────── */
+.err-panel { padding:12px 14px; background:var(--rg); border:1px solid rgba(255,59,87,.25); border-radius:var(--rr); font-family:var(--mono); font-size:11px; color:var(--r); }
+
+/* ── Tabs ───────────────────────────────────────── */
+.tab-row { display:flex; align-items:stretch; border-bottom:1px solid var(--b1); flex-shrink:0; }
+.tab-btn {
+  font-size:11px; font-weight:500; padding:9px 16px;
+  color:var(--t3); border-bottom:2px solid transparent;
+  transition:color .15s,border-color .15s; white-space:nowrap;
+}
+.tab-btn:hover { color:var(--t2); }
+.tab-btn.active { color:var(--t1); border-bottom-color:var(--g); }
+
+/* ── Animations ─────────────────────────────────── */
+@keyframes fadeUp { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+.fade { animation:fadeUp .22s ease forwards; }
+
+@keyframes flashG { 0%{background:var(--gd)} 100%{background:transparent} }
+@keyframes flashR { 0%{background:var(--rd)} 100%{background:transparent} }
+.flash-g { animation:flashG .7s ease; }
+.flash-r { animation:flashR .7s ease; }
+
+@keyframes slideIn { from{opacity:0;transform:translateX(8px)} to{opacity:1;transform:translateX(0)} }
+.slide-in { animation:slideIn .2s ease forwards; }
+
+/* ── Recharts overrides ─────────────────────────── */
+.recharts-tooltip-wrapper { z-index:200 !important; }
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical   line { stroke:var(--b1) !important; }

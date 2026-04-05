@@ -1,0 +1,77 @@
+version: "3.9"
+
+services:
+
+  # ── Ollama LLM runtime ─────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: pulse-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+    # GPU support — uncomment if you have NVIDIA Docker toolkit installed:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  # ── Model puller — runs once to download llama3 ───────────────────
+  ollama-pull:
+    image: ollama/ollama:latest
+    container_name: pulse-ollama-pull
+    depends_on:
+      - ollama
+    entrypoint: >
+      sh -c "sleep 5 && ollama pull llama3 && echo 'llama3 ready'"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: "no"
+
+  # ── FastAPI backend ────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pulse-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - stock_data:/app/data
+    environment:
+      - DB_PATH=/app/data/stocks.db
+      - OLLAMA_BASE_URL=http://ollama:11434
+      # Optional cloud LLM keys (leave blank to use Ollama)
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+    depends_on:
+      - ollama
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── React frontend ─────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pulse-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  stock_data:
+  ollama_data:

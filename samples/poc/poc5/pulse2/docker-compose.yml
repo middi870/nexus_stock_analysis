@@ -1,0 +1,46 @@
+version: "3.9"
+
+# Ollama runs on your host at localhost:11434 — no container needed.
+# Docker services reach it via host.docker.internal:11434.
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pulse-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - stock_data:/app/data
+    environment:
+      - DB_PATH=/app/data/stocks.db
+      # Points to your host Ollama instance
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      # Optional cloud LLM keys — leave blank to use Ollama only
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+    # On Linux, host.docker.internal requires this:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pulse-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  stock_data:

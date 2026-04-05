@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+asyncpg
+redis
+pydantic
+python-dotenv
+yfinance
+pandas
+numpy
+httpx

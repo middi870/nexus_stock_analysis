@@ -1,0 +1,48 @@
+.wrap { display: flex; flex-direction: column; gap: 12px; }
+
+.chartWrap { padding: 4px 8px 8px; }
+
+.legend {
+  display: flex; gap: 12px;
+  font-family: var(--f-mono); font-size: 9px;
+}
+
+.tooltip {
+  background: var(--s2); border: 1px solid var(--ln2);
+  border-radius: var(--radius); padding: 8px 12px;
+  font-family: var(--f-mono); font-size: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.5);
+}
+.ttDate { color: var(--txt2); margin-bottom: 5px; font-size: 9px; }
+.ttRow  { display: flex; justify-content: space-between; gap: 16px; color: var(--txt); }
+
+/* Range bar */
+.rangeWrap { padding: 14px 18px; }
+.rangeLabels {
+  display: flex; justify-content: space-between;
+  font-family: var(--f-mono); font-size: 8px; color: var(--txt3);
+  text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px;
+}
+.rangeTrack {
+  height: 5px; background: var(--s3); border-radius: 3px; position: relative;
+}
+.rangeFill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--red), var(--amber), var(--teal));
+  transition: width .8s ease;
+}
+.rangeThumb {
+  position: absolute; top: 50%;
+  width: 11px; height: 11px;
+  background: var(--txt); border-radius: 50%;
+  border: 2px solid var(--s2);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px rgba(255,255,255,.3);
+  transition: left .8s ease;
+}
+.rangeVals {
+  display: flex; justify-content: space-between;
+  font-family: var(--f-mono); font-size: 9px;
+  color: var(--txt2); margin-top: 7px;
+}
+.rangeCenter { color: var(--txt); font-weight: 500; }

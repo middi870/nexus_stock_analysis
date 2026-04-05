@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  # ───────── BACKEND ─────────
+  backend:
+    build: ./backend
+    container_name: backend_api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/app
+      REDIS_URL: redis://redis:6379
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+
+  # ───────── FRONTEND ─────────
+  frontend:
+    build: ./frontend
+    container_name: frontend_app
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: always
+
+  # ───────── DATABASE ─────────
+  db:
+    image: postgres:15
+    container_name: backend_db
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "6000:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  # ───────── REDIS ─────────
+  redis:
+    image: redis:7
+    container_name: backend_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+
+volumes:
+  postgres_data:
+  redis_data:

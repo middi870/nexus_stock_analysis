@@ -1,0 +1,49 @@
+.bar {
+  height: 46px; flex-shrink: 0;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--b1);
+  display: flex; align-items: center;
+  padding: 0 14px; gap: 12px;
+}
+.logo { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.logoMark {
+  width: 24px; height: 24px; border-radius: 4px;
+  background: var(--green); display: grid; place-items: center;
+}
+.logoText { font-size: 15px; font-weight: 700; letter-spacing: 2px; }
+.logoTag  { font-family: var(--mono); font-size: 8px; color: var(--t3); letter-spacing: 1px; margin-top: 1px; }
+
+.divider  { width: 1px; height: 20px; background: var(--b2); flex-shrink: 0; }
+.spacer   { flex: 1; }
+
+.indices  { display: flex; gap: 0; }
+.index {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 14px; border-right: 1px solid var(--b1);
+}
+.idxName  { font-size: 10px; color: var(--t3); font-weight: 600; }
+.idxVal   { font-family: var(--mono); font-size: 11px; color: var(--t1); }
+.idxChg   { font-family: var(--mono); font-size: 10px; }
+
+.clock    { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.mktDot   { width: 6px; height: 6px; border-radius: 50%; }
+.mktOpen  { background: var(--green); box-shadow: 0 0 6px var(--green); animation: blink 2s ease-in-out infinite; }
+.mktClosed{ background: var(--t3); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+.mktLabel { font-size: 10px; color: var(--t2); }
+.time     { font-family: var(--mono); font-size: 10px; color: var(--t3); }
+
+.searchWrap { position: relative; flex-shrink: 0; }
+.searchIco  {
+  position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+  color: var(--t3); pointer-events: none;
+}
+.search {
+  background: var(--bg3); border: 1px solid var(--b2);
+  color: var(--t1); font-size: 11px;
+  padding: 5px 10px 5px 26px;
+  border-radius: var(--r); outline: none; width: 170px;
+  transition: border-color .2s;
+}
+.search:focus { border-color: rgba(14,203,129,.4); }
+.search::placeholder { color: var(--t3); }

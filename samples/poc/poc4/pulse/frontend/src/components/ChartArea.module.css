@@ -1,0 +1,91 @@
+.area { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--bg); }
+
+/* Stock identity row */
+.stockId {
+  display: flex; align-items: center; gap: 20px;
+  padding: 10px 16px; border-bottom: 1px solid var(--b1);
+  background: var(--bg1); flex-shrink: 0;
+}
+.stockSym { font-family: var(--mono); font-size: 15px; font-weight: 700; }
+.stockName { font-size: 10px; color: var(--t2); margin-top: 2px; }
+.priceBlock { display: flex; flex-direction: column; gap: 4px; }
+.price { font-family: var(--mono); font-size: 28px; font-weight: 600; line-height: 1; }
+.up   { color: var(--green); }
+.dn   { color: var(--red); }
+.priceChange { display: flex; align-items: center; gap: 8px; }
+.prevClose { font-family: var(--mono); font-size: 10px; color: var(--t3); }
+
+.miniKpis { display: flex; gap: 14px; flex-wrap: wrap; }
+.kpi { display: flex; flex-direction: column; gap: 2px; }
+.kpiL { font-size: 9px; color: var(--t3); text-transform: uppercase; letter-spacing: .8px; }
+.kpiV { font-family: var(--mono); font-size: 11px; color: var(--t1); }
+
+.rsiBlock { margin-left: auto; text-align: right; }
+.rsiLabel { font-size: 9px; color: var(--t3); text-transform: uppercase; letter-spacing: 1px; }
+.rsiVal   { font-family: var(--mono); font-size: 22px; font-weight: 600; line-height: 1; margin: 2px 0; }
+.rsiHint  { font-size: 9px; color: var(--t2); }
+
+/* Controls bar */
+.controls {
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--b1); flex-shrink: 0;
+  background: var(--bg1);
+}
+.ctrlRight { display: flex; flex-direction: column; gap: 4px; padding: 4px 12px; }
+.indRow, .perRow { display: flex; gap: 2px; }
+.indBtn, .perBtn {
+  font-size: 10px; font-weight: 500;
+  padding: 3px 9px; border-radius: 3px;
+  border: 1px solid transparent; color: var(--t3);
+  transition: all .15s;
+}
+.indBtn:hover, .perBtn:hover { color: var(--t2); background: var(--bg3); }
+.indOn { color: var(--t1) !important; border-color: var(--b3) !important; background: var(--bg3) !important; }
+.perOn { color: var(--green) !important; border-color: rgba(14,203,129,.3) !important; background: var(--green-g) !important; }
+
+/* Chart section */
+.content { flex:1; overflow:hidden; display:flex; flex-direction:column; }
+.chartSection { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+.mainChart { flex:1; overflow:hidden; padding: 0 0 4px; min-height: 0; }
+.volChart  { height: 80px; flex-shrink:0; border-top: 1px solid var(--b1); }
+
+/* Tooltip */
+.tt {
+  background: var(--bg2); border: 1px solid var(--b2);
+  border-radius: var(--r2); padding: 8px 12px;
+  font-family: var(--mono); font-size: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.6);
+}
+.ttDate { color: var(--t2); margin-bottom: 5px; font-size: 9px; }
+.ttRow  { display: flex; justify-content: space-between; gap: 14px; color: var(--t1); padding: 1px 0; }
+
+/* Movers */
+.moversGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px; overflow-y: auto; }
+.moverRow {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px; border-bottom: 1px solid var(--b1);
+  cursor: pointer; transition: background .1s;
+}
+.moverRow:hover { background: rgba(255,255,255,.02); }
+.moverRank  { font-family: var(--mono); font-size: 9px; color: var(--t3); width: 14px; }
+.moverCo    { flex:1; min-width:0; }
+.moverSym   { font-family: var(--mono); font-size: 11px; font-weight:600; display: block; }
+.moverName  { font-size: 9px; color: var(--t3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.moverPrice { font-family: var(--mono); font-size: 11px; color: var(--t2); }
+.moverChg   { font-family: var(--mono); font-size: 11px; font-weight: 600; min-width: 56px; text-align:right; }
+
+/* Compare */
+.compareWrap { display:flex; flex-direction:column; gap:12px; padding:12px; overflow-y:auto; }
+.compareBar  { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:12px; background:var(--card); border-radius:var(--r2); border:1px solid var(--b1); }
+.compareFixed{ font-family:var(--mono); font-size:13px; font-weight:700; color:var(--green); }
+.vs          { font-size:10px; color:var(--t3); }
+.compareSel  { flex:1; background:var(--bg3); border:1px solid var(--b2); color:var(--t1); font-size:11px; padding:6px 9px; border-radius:var(--r); outline:none; }
+.comparePer  { width:72px; background:var(--bg3); border:1px solid var(--b2); color:var(--t1); font-size:11px; padding:6px; border-radius:var(--r); outline:none; }
+.compareGo   { background:var(--green); color:#000; font-size:11px; font-weight:600; padding:6px 16px; border-radius:var(--r); transition:opacity .2s; }
+.compareGo:hover { opacity:.85; }
+.compareResult { display:flex; flex-direction:column; gap:10px; }
+.corrRow { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.corrCell { background:var(--card); border:1px solid var(--b1); border-radius:var(--r2); padding:12px 14px; }
+.corrLabel { font-size:9px; color:var(--t3); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:4px; }
+.corrVal   { font-family:var(--mono); font-size:20px; font-weight:600; }
+.compareChart { height: 260px; }

@@ -1,0 +1,34 @@
+.hdr {
+  padding: 11px 20px 9px;
+  border-bottom: 1px solid var(--ln);
+  background: var(--s1);
+  display: flex; align-items: flex-end; gap: 18px;
+  flex-shrink: 0; min-height: 64px;
+}
+.nameBlock {}
+.sym  { font-family: var(--f-mono); font-size: 9px; color: var(--txt3); letter-spacing: 1px; margin-bottom: 2px; }
+.name { font-family: var(--f-disp); font-size: 22px; letter-spacing: 1.5px; line-height: 1; }
+
+.priceBlock { display: flex; flex-direction: column; gap: 3px; }
+.price { font-family: var(--f-disp); font-size: 34px; line-height: 1; letter-spacing: .5px; }
+.chg {
+  font-family: var(--f-mono); font-size: 11px;
+  padding: 2px 8px; border-radius: 4px; display: inline-block;
+}
+.up  { color: var(--teal); background: var(--teal-d); border: 1px solid rgba(0,255,179,.2); }
+.dn  { color: var(--red);  background: rgba(255,69,96,.1); border: 1px solid rgba(255,69,96,.2); }
+
+.pill {
+  font-family: var(--f-mono); font-size: 8px; color: var(--txt3);
+  background: var(--s3); border: 1px solid var(--ln2);
+  padding: 2px 8px; border-radius: 10px;
+  align-self: flex-end; margin-bottom: 3px;
+}
+
+.spacer { flex: 1; }
+
+.kpis { display: flex; gap: 20px; align-items: flex-end; }
+.kpi  { display: flex; flex-direction: column; gap: 2px; }
+.kpiLabel { font-family: var(--f-mono); font-size: 8px; color: var(--txt3); text-transform: uppercase; letter-spacing: 1px; }
+.kpiVal   { font-family: var(--f-mono); font-size: 13px; color: var(--txt); }
+.amber    { color: var(--amber) !important; }

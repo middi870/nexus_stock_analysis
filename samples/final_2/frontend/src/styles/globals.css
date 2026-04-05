@@ -1,0 +1,160 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   NEXUS — Design System v2
+   Palette: Midnight Navy + Emerald + Crimson (proven finance terminal combo)
+   Fonts: IBM Plex Mono (data) · Syne (display) · Inter (body)
+═══════════════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* ── Base surfaces (true navy-black, not pure black) ───────────── */
+  --bg:    #07090F;   /* page background */
+  --s1:    #0B0E18;   /* panel bg */
+  --s2:    #0F1220;   /* card bg */
+  --s3:    #141828;   /* hover bg */
+  --s4:    #1A1F30;   /* selected bg */
+  --card:  #0C0F1C;   /* chart bg */
+
+  /* ── Borders ──────────────────────────────────────────────────── */
+  --b1: #1C2238;
+  --b2: #232B44;
+  --b3: #2C3655;
+
+  /* ── Emerald green (up / positive) ───────────────────────────── */
+  --g:    #10B981;   /* Tailwind emerald-500 — readable on dark */
+  --g2:   #34D399;   /* lighter label variant */
+  --gd:   rgba(16, 185, 129, .12);
+  --gg:   rgba(16, 185, 129, .06);
+  --gh:   rgba(16, 185, 129, .20);
+
+  /* ── Crimson red (down / negative) ───────────────────────────── */
+  --r:    #EF4444;   /* Tailwind red-500 */
+  --rd:   rgba(239, 68, 68, .12);
+  --rg:   rgba(239, 68, 68, .06);
+
+  /* ── Sky blue (accent / links) ────────────────────────────────── */
+  --blue:  #3B82F6;   /* Tailwind blue-500 */
+  --blued: rgba(59, 130, 246, .14);
+
+  /* ── Amber (AI / warnings) ────────────────────────────────────── */
+  --amber:  #F59E0B;
+  --amberd: rgba(245, 158, 11, .14);
+
+  /* ── Indicator extras ─────────────────────────────────────────── */
+  --purple: #A78BFA;
+  --cyan:   #06B6D4;
+  --yellow: #FBBF24;
+  --orange: #F97316;
+
+  /* ── Text — four-level hierarchy ─────────────────────────────── */
+  --t1: #E2E8F8;   /* primary — headings, prices */
+  --t2: #94A3C0;   /* secondary — labels */
+  --t3: #4E607E;   /* muted — timestamps, meta */
+  --t4: #2A3650;   /* disabled / faint */
+
+  /* ── Typography ───────────────────────────────────────────────── */
+  --ui:      'Inter',        sans-serif;
+  --display: 'Syne',         sans-serif;
+  --mono:    'IBM Plex Mono',monospace;
+
+  /* ── Geometry ─────────────────────────────────────────────────── */
+  --rr:  4px;
+  --rr2: 8px;
+  --rr3: 12px;
+  --sidebar-w: 216px;
+  --topbar-h:  46px;
+}
+
+html, body, #root { height: 100%; overflow: hidden; background: var(--bg); }
+body { font-family: var(--ui); font-size: 13px; color: var(--t1); -webkit-font-smoothing: antialiased; }
+
+/* ── Scrollbar ────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--b3); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--t3); }
+
+/* ── Layout ───────────────────────────────────────────────────────────────── */
+.app       { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+.workspace { display: flex; flex: 1; overflow: hidden; border-top: 1px solid var(--b1); }
+
+/* ── Colour helpers ───────────────────────────────────────────────────────── */
+.up  { color: var(--g);  }
+.dn  { color: var(--r);  }
+.neu { color: var(--t2); }
+
+/* ── Loading ──────────────────────────────────────────────────────────────── */
+.spin-center {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; gap: 14px;
+  color: var(--t3); font-family: var(--mono); font-size: 11px; letter-spacing: .06em;
+}
+.spinner {
+  width: 28px; height: 28px;
+  border: 2px solid var(--b2);
+  border-top-color: var(--g);
+  border-radius: 50%;
+  animation: spin .75s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Error panel ──────────────────────────────────────────────────────────── */
+.err-panel {
+  background: var(--rd); border: 1px solid rgba(239,68,68,.3);
+  border-radius: var(--rr2); padding: 24px;
+  color: var(--t2); font-size: 13px; line-height: 1.7; font-family: var(--mono);
+}
+.err-panel code { color: var(--g2); background: var(--s2); padding: 2px 7px; border-radius: 4px; font-size: 12px; }
+
+/* ── Tab bar ──────────────────────────────────────────────────────────────── */
+.tabs { display: flex; gap: 2px; padding: 4px; background: var(--s1); border-bottom: 1px solid var(--b1); }
+.tab {
+  padding: 4px 12px; border-radius: var(--rr);
+  font-size: 11px; font-weight: 500; color: var(--t3);
+  cursor: pointer; border: none; background: transparent;
+  transition: all .15s; letter-spacing: .02em;
+}
+.tab:hover  { color: var(--t2); background: var(--s3); }
+.tab.active { color: var(--g);  background: var(--gd); }
+
+/* ── Input / select ───────────────────────────────────────────────────────── */
+.input {
+  background: var(--s2); border: 1px solid var(--b2);
+  border-radius: var(--rr); color: var(--t1);
+  font-family: var(--ui); font-size: 12px;
+  padding: 5px 10px; outline: none;
+  transition: border-color .15s; width: 100%;
+}
+.input:focus          { border-color: var(--g); }
+.input::placeholder   { color: var(--t4); }
+select.input          { cursor: pointer; }
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 13px; border-radius: var(--rr);
+  font-family: var(--ui); font-size: 12px; font-weight: 500;
+  cursor: pointer; border: 1px solid transparent;
+  transition: all .15s; white-space: nowrap;
+}
+.btn-primary { background: var(--g);  color: #07090F; border-color: var(--g); }
+.btn-primary:hover { background: #0ea572; }
+.btn-ghost   { background: transparent; color: var(--t2); border-color: var(--b2); }
+.btn-ghost:hover { background: var(--s3); color: var(--t1); }
+
+/* ── Skeleton shimmer ─────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--s2) 25%, var(--s3) 50%, var(--s2) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 3px;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 900px)  { .watchlist-shell { display: none !important; } }

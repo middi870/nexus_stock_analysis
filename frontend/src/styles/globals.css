@@ -1,0 +1,265 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   NEXUS — Design System
+   Aesthetic: deep-space terminal · precision finance · editorial clarity
+   Fonts: DM Mono (data) + Syne (display) + Inter (body)
+═══════════════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* ── Surfaces ─────────────────────────────────────────────────── */
+  --bg:   #050810;
+  --s1:   #090D18;
+  --s2:   #0C1120;
+  --s3:   #101627;
+  --s4:   #141C30;
+  --card: #0A0F1C;
+
+  /* ── Borders ─────────────────────────────────────────────────── */
+  --b1: #182038;
+  --b2: #1E2A48;
+  --b3: #253358;
+
+  /* ── Brand: electric teal ─────────────────────────────────────── */
+  --g:   #00E5A0;
+  --gd:  rgba(0, 229, 160, .12);
+  --gg:  rgba(0, 229, 160, .06);
+  --gl:  rgba(0, 229, 160, .03);
+  --gh:  rgba(0, 229, 160, .22);
+
+  /* ── Danger red ───────────────────────────────────────────────── */
+  --r:   #FF3D5A;
+  --rd:  rgba(255, 61, 90, .12);
+  --rg:  rgba(255, 61, 90, .06);
+
+  /* ── Accent blue ──────────────────────────────────────────────── */
+  --blue:  #4D9FFF;
+  --blued: rgba(77, 159, 255, .14);
+
+  /* ── AI amber ─────────────────────────────────────────────────── */
+  --amber:  #FFB930;
+  --amberd: rgba(255, 185, 48, .14);
+
+  /* ── Indicator palette ────────────────────────────────────────── */
+  --purple: #C084FC;
+  --cyan:   #22D3EE;
+  --yellow: #FDE047;
+  --orange: #FB923C;
+
+  /* ── Text ─────────────────────────────────────────────────────── */
+  --t1: #EDF2FF;
+  --t2: #8CA5C8;
+  --t3: #4E6688;
+  --t4: #283A55;
+
+  /* ── Typography ───────────────────────────────────────────────── */
+  --ui:      'Inter', sans-serif;
+  --display: 'Syne', sans-serif;
+  --mono:    'DM Mono', monospace;
+
+  /* ── Layout ───────────────────────────────────────────────────── */
+  --rr:  5px;
+  --rr2: 9px;
+  --rr3: 13px;
+  --sidebar-w: 220px;
+  --ai-w:      320px;
+  --topbar-h:  48px;
+}
+
+html, body, #root { height: 100%; overflow: hidden; background: var(--bg); }
+body { font-family: var(--ui); font-size: 13px; color: var(--t1); }
+
+/* ── Scrollbar ────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--b3); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--t3); }
+
+/* ── Layout shell ─────────────────────────────────────────────────────────── */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.workspace {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  border-top: 1px solid var(--b1);
+}
+
+/* ── Utility classes ──────────────────────────────────────────────────────── */
+.up  { color: var(--g); }
+.dn  { color: var(--r); }
+.neu { color: var(--t2); }
+
+.mono  { font-family: var(--mono); }
+.label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--t3); }
+
+/* ── Loading / error states ───────────────────────────────────────────────── */
+.spin-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 16px;
+  color: var(--t3);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .06em;
+}
+
+.spinner {
+  width: 32px; height: 32px;
+  border: 2px solid var(--b2);
+  border-top-color: var(--g);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.err-panel {
+  background: rgba(255, 61, 90, .08);
+  border: 1px solid rgba(255, 61, 90, .25);
+  border-radius: var(--rr2);
+  padding: 24px;
+  color: var(--t2);
+  font-size: 13px;
+  line-height: 1.7;
+  font-family: var(--mono);
+}
+
+.err-panel code {
+  color: var(--g);
+  background: var(--s2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* ── Card base ────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--b1);
+  border-radius: var(--rr2);
+}
+
+/* ── Tab bar ──────────────────────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  background: var(--s1);
+  border-bottom: 1px solid var(--b1);
+}
+
+.tab {
+  padding: 5px 14px;
+  border-radius: var(--rr);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--t3);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: all .15s;
+  letter-spacing: .03em;
+}
+
+.tab:hover  { color: var(--t2); background: var(--s3); }
+.tab.active { color: var(--g);  background: var(--gd); }
+
+/* ── Badge ────────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.badge-up  { background: var(--gd); color: var(--g); }
+.badge-dn  { background: var(--rd); color: var(--r); }
+
+/* ── Input base ───────────────────────────────────────────────────────────── */
+.input {
+  background: var(--s2);
+  border: 1px solid var(--b2);
+  border-radius: var(--rr);
+  color: var(--t1);
+  font-family: var(--ui);
+  font-size: 12px;
+  padding: 6px 10px;
+  outline: none;
+  transition: border-color .15s;
+  width: 100%;
+}
+
+.input:focus  { border-color: var(--g); }
+.input::placeholder { color: var(--t4); }
+
+select.input { cursor: pointer; }
+
+/* ── Button base ──────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--rr);
+  font-family: var(--ui);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all .15s;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--g);
+  color: #050810;
+  border-color: var(--g);
+}
+.btn-primary:hover { background: #00c48a; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--t2);
+  border-color: var(--b2);
+}
+.btn-ghost:hover { background: var(--s3); color: var(--t1); }
+
+/* ── Animated value flash ─────────────────────────────────────────────────── */
+@keyframes flash-up { 0%,100% { background: transparent; } 30% { background: var(--gd); } }
+@keyframes flash-dn { 0%,100% { background: transparent; } 30% { background: var(--rd); } }
+.flash-up { animation: flash-up .6s ease; }
+.flash-dn { animation: flash-dn .6s ease; }
+
+/* ── Shimmer loading skeleton ─────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--s2) 25%, var(--s3) 50%, var(--s2) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 3px;
+}
+
+/* ── Responsive: hide AI sidebar on small screens ─────────────────────────── */
+@media (max-width: 1100px) {
+  .ai-sidebar-shell { display: none !important; }
+}
+@media (max-width: 800px) {
+  .watchlist-shell { display: none !important; }
+}

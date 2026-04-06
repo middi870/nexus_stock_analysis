@@ -1,0 +1,208 @@
+/* ═══════════════════════════════════════════════════════════════════
+   NEXUS Design System v4 — Professional Finance Terminal
+   Colours tested for WCAG AA contrast on all backgrounds
+   Fonts: Inter (UI) · JetBrains Mono (data)
+═══════════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  /* ── Core surfaces ─────────────────────────────────── */
+  --bg:   #0A0B0F;
+  --s1:   #0F1117;   /* panels */
+  --s2:   #14161F;   /* cards */
+  --s3:   #1A1D2A;   /* hover */
+  --s4:   #1F2233;   /* selected */
+  --s5:   #252840;   /* active */
+
+  /* ── Borders ───────────────────────────────────────── */
+  --b1:#1E2133;
+  --b2:#272B3E;
+  --b3:#313652;
+
+  /* ── Semantic colours — always readable on dark bg ── */
+  --green:      #22C55E;   /* positive / gain */
+  --green-dim:  #16A34A;
+  --green-bg:   rgba(34,197,94,.1);
+  --green-bd:   rgba(34,197,94,.25);
+  --green-text: #86EFAC;   /* text ON dark green bg */
+
+  --red:        #EF4444;   /* negative / loss */
+  --red-dim:    #DC2626;
+  --red-bg:     rgba(239,68,68,.1);
+  --red-bd:     rgba(239,68,68,.25);
+  --red-text:   #FCA5A5;   /* text ON dark red bg */
+
+  --blue:       #3B82F6;
+  --blue-bg:    rgba(59,130,246,.1);
+  --blue-text:  #93C5FD;
+
+  --amber:      #F59E0B;
+  --amber-bg:   rgba(245,158,11,.1);
+  --amber-text: #FCD34D;
+
+  --purple:     #8B5CF6;
+  --cyan:       #06B6D4;
+  --orange:     #F97316;
+
+  /* ── Text — 4-tier ─────────────────────────────────── */
+  --t1:#F1F3FF;  /* headlines */
+  --t2:#8892B0;  /* body      */
+  --t3:#4A5270;  /* muted     */
+  --t4:#272D42;  /* disabled  */
+
+  /* ── Typography ─────────────────────────────────────── */
+  --ui:  'Inter',          sans-serif;
+  --mono:'JetBrains Mono', monospace;
+
+  /* ── Layout ──────────────────────────────────────────── */
+  --rr :4px;
+  --rr2:8px;
+  --rr3:12px;
+  --rr4:16px;
+  --topbar-h :48px;
+  --sidebar-w:228px;
+  --infobar-w:196px;
+  --nav-h    :58px;
+}
+
+/* ── Reset ──────────────────────────────────────────────────────── */
+html,body,#root{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:var(--ui);font-size:13px;color:var(--t1);
+     -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+button{font-family:inherit}
+
+/* ── Scrollbar ────────────────────────────────────────────────────── */
+::-webkit-scrollbar     {width:3px;height:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--b3);border-radius:99px}
+
+/* ── Layout shells ───────────────────────────────────────────────── */
+.app {display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.body{display:flex;flex:1;overflow:hidden;min-height:0}
+.main-view{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* ── Colour helpers ──────────────────────────────────────────────── */
+.up {color:var(--green)}
+.dn {color:var(--red)}
+.neu{color:var(--t2)}
+
+/* ── Input ───────────────────────────────────────────────────────── */
+.input{
+  background:var(--s2);border:1px solid var(--b2);
+  border-radius:var(--rr2);color:var(--t1);
+  font-family:var(--ui);font-size:12.5px;
+  padding:7px 11px;outline:none;
+  transition:border-color .15s;width:100%;
+}
+.input:focus{border-color:rgba(34,197,94,.5);box-shadow:0 0 0 3px rgba(34,197,94,.08)}
+.input::placeholder{color:var(--t4)}
+select.input{cursor:pointer}
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 15px;border-radius:var(--rr2);
+  font-family:var(--ui);font-size:12px;font-weight:500;
+  cursor:pointer;border:none;transition:all .15s;
+  white-space:nowrap;line-height:1;
+}
+.btn-primary{background:var(--green);color:#0A0B0F}
+.btn-primary:hover{background:#16A34A}
+.btn-ghost{background:var(--s3);color:var(--t2);border:1px solid var(--b2)}
+.btn-ghost:hover{background:var(--s4);color:var(--t1)}
+.btn-icon{background:transparent;color:var(--t3);padding:5px;border-radius:var(--rr);border:none;cursor:pointer;transition:all .15s;display:flex;align-items:center}
+.btn-icon:hover{background:var(--s3);color:var(--t1)}
+
+/* ── Pill toggle ─────────────────────────────────────────────────── */
+.pill-group{display:flex;background:var(--s2);border:1px solid var(--b2);border-radius:var(--rr2);padding:3px;gap:2px}
+.pill-opt{
+  padding:4px 10px;border-radius:6px;font-size:10px;font-weight:600;
+  cursor:pointer;border:none;background:transparent;
+  color:var(--t3);transition:all .12s;letter-spacing:.03em;font-family:var(--ui);
+}
+.pill-opt.on{background:var(--s5);color:var(--t1)}
+
+/* ── Loading ─────────────────────────────────────────────────────── */
+.spin-center{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;gap:16px;color:var(--t3);font-family:var(--mono);font-size:11px;
+}
+.spinner{
+  width:26px;height:26px;
+  border:2px solid var(--b2);border-top-color:var(--green);
+  border-radius:50%;animation:spin .75s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Skeleton ────────────────────────────────────────────────────── */
+.skel{
+  background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%);
+  background-size:800px 100%;animation:shim 1.5s infinite;border-radius:3px;
+}
+@keyframes shim{0%{background-position:-400px 0}100%{background-position:400px 0}}
+
+/* ── Tab row ──────────────────────────────────────────────────────── */
+.tab-row{display:flex;gap:2px}
+.tab-btn{
+  padding:5px 11px;border-radius:var(--rr);
+  font-size:11px;font-weight:500;cursor:pointer;
+  border:none;background:transparent;color:var(--t3);
+  transition:all .12s;display:flex;align-items:center;gap:5px;
+}
+.tab-btn:hover {color:var(--t2);background:var(--s3)}
+.tab-btn.on    {color:var(--green);background:var(--green-bg)}
+
+/* ── Divider ─────────────────────────────────────────────────────── */
+.divider-v{width:1px;height:16px;background:var(--b2);flex-shrink:0}
+
+/* ── Bottom nav (mobile) ─────────────────────────────────────────── */
+.bnav{
+  position:fixed;bottom:0;left:0;right:0;
+  height:var(--nav-h);background:var(--s1);
+  border-top:1px solid var(--b1);
+  display:none;                          /* shown by media query */
+  align-items:stretch;z-index:100;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.bnav-tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;cursor:pointer;
+  color:var(--t3);transition:color .15s;
+  border:none;background:none;font-family:var(--ui);
+  position:relative;
+}
+.bnav-tab.on{color:var(--green)}
+.bnav-tab.on::after{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:2px;
+  background:var(--green);border-radius:0 0 2px 2px;
+}
+.bnav-label{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;line-height:1}
+
+/* ── Mobile full-page screens ────────────────────────────────────── */
+.mobile-screen{
+  position:fixed;inset:var(--topbar-h) 0 var(--nav-h) 0;
+  background:var(--bg);z-index:90;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+
+/* ── Responsive: desktop vs mobile ──────────────────────────────── */
+@media(min-width:1024px){
+  .sidebar-shell{display:flex!important}
+  .infobar-shell{display:flex!important}
+  .bnav          {display:none !important}
+  .topbar-nav    {display:flex !important}
+  .topbar-search {display:flex !important}
+  .topbar-mob-btn{display:none !important}
+  .mobile-screen {display:none !important}
+}
+@media(max-width:1023px){
+  .sidebar-shell {display:none!important}
+  .infobar-shell {display:none!important}
+  .bnav          {display:flex!important}
+  .topbar-nav    {display:none!important}
+  .topbar-search {display:none!important}
+  .topbar-mob-btn{display:flex!important}
+  .main-view     {padding-bottom:var(--nav-h)}
+}

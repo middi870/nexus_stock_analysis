@@ -4,18 +4,27 @@ import { api } from '../api.js'
 const Ctx = createContext(null)
 export const useApp = () => useContext(Ctx)
 
-export function AppProvider({ children }) {
-  const [companies,  setCompanies ] = useState([])
-  const [activeSym,  setActiveSym ] = useState('RELIANCE')
-  const [summary,    setSummary   ] = useState(null)          // lazy, enriches after load
-  const [summaryLoading, setSummaryLoading] = useState(false)
-  const [tab,        setTab       ] = useState('chart')
-  const [loading,    setLoading   ] = useState(true)
-  const [error,      setError     ] = useState(null)
-  const [movers,     setMovers    ] = useState(null)
-  const [drawerOpen, setDrawerOpen] = useState(false)         // mobile stock picker drawer
+// Metric options for the stock list toggle
+export const STOCK_METRICS = [
+  { id:'change_pct',  label:'Day %',   fmt:(v)=>v==null?'—':`${v>=0?'+':''}${v.toFixed(2)}%` },
+  { id:'close',       label:'Price',   fmt:(v)=>v==null?'—':`₹${Number(v).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}` },
+  { id:'volume',      label:'Volume',  fmt:(v)=>v==null?'—':v>=1e7?(v/1e7).toFixed(2)+'Cr':v>=1e5?(v/1e5).toFixed(1)+'L':v.toLocaleString('en-IN') },
+  { id:'pe',          label:'P/E',     fmt:(v)=>v==null?'—':v+'×' },
+  { id:'mktcap',      label:'Mkt Cap', fmt:(v)=>v==null?'—':`₹${v}L Cr` },
+]
 
-  // Boot: company list (has all price data we need for instant render)
+export function AppProvider({ children }) {
+  const [companies,      setCompanies      ] = useState([])
+  const [activeSym,      setActiveSym      ] = useState('RELIANCE')
+  const [summary,        setSummary        ] = useState(null)
+  const [summaryLoading, setSummaryLoading ] = useState(false)
+  const [tab,            setTab            ] = useState('stocks') // starts on stock list
+  const [loading,        setLoading        ] = useState(true)
+  const [error,          setError          ] = useState(null)
+  const [movers,         setMovers         ] = useState(null)
+  const [stockMetric,    setStockMetric    ] = useState('change_pct')  // active metric in stock list
+  const [mobileTab,      setMobileTab      ] = useState('stocks')      // mobile nav state
+
   useEffect(() => {
     const ctrl = new AbortController()
     api.companies(ctrl.signal)
@@ -26,16 +35,11 @@ export function AppProvider({ children }) {
     return () => ctrl.abort()
   }, [])
 
-  // Movers (background, non-blocking)
-  useEffect(() => {
-    api.movers(7).then(setMovers).catch(() => {})
-  }, [])
+  useEffect(() => { api.movers(7).then(setMovers).catch(()=>{}) }, [])
 
-  // Summary: loaded lazily — does NOT block anything
   useEffect(() => {
     if (!activeSym) return
-    setSummary(null)
-    setSummaryLoading(true)
+    setSummary(null); setSummaryLoading(true)
     const ctrl = new AbortController()
     api.summary(activeSym, ctrl.signal)
       .then(d => { setSummary(d); setSummaryLoading(false) })
@@ -43,7 +47,6 @@ export function AppProvider({ children }) {
     return () => ctrl.abort()
   }, [activeSym])
 
-  // Instant data: the company row from the list (available immediately after boot)
   const activeCompany = useMemo(
     () => companies.find(c => c.symbol === activeSym) || null,
     [companies, activeSym]
@@ -51,20 +54,17 @@ export function AppProvider({ children }) {
 
   const selectSymbol = useCallback(sym => {
     setActiveSym(sym)
-    setTab('chart')
-    setDrawerOpen(false)
+    setMobileTab('chart') // after picking a stock, go to chart
   }, [])
 
   return (
     <Ctx.Provider value={{
       companies, activeSym, selectSymbol,
-      activeCompany,        // instant — from companies list
-      summary,              // lazy — from /summary endpoint
-      summaryLoading,
+      activeCompany, summary, summaryLoading,
       tab, setTab,
-      loading, error,
-      movers,
-      drawerOpen, setDrawerOpen,
+      loading, error, movers,
+      stockMetric, setStockMetric,
+      mobileTab, setMobileTab,
     }}>
       {children}
     </Ctx.Provider>

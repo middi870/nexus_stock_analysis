@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useApp } from '../context/AppContext.jsx'
 import { api, fmt, sign, cls, sd } from '../api.js'
-import { IcoBarChart, IcoTrend, IcoSliders, IcoRefresh } from '../icons.jsx'
 import {
   ComposedChart, Bar, Line, XAxis, YAxis, Tooltip,
   CartesianGrid, ResponsiveContainer, ReferenceLine,
@@ -11,16 +10,21 @@ const DAYS  = [30,60,90,180,365]
 const OVS   = ['MA20','MA50','BB','VWAP']
 const P2S   = ['Volume','RSI','MACD','Stochastic']
 
-function PTip({ active, payload }) {
-  if (!active||!payload?.length) return null
-  const d = payload[0]?.payload; if (!d) return null
-  return (
-    <div style={{ background:'var(--s2)', border:'1px solid var(--b2)', borderRadius:'var(--rr)',
-      padding:'9px 12px', fontSize:11, fontFamily:'var(--mono)', minWidth:145,
-      boxShadow:'0 12px 36px rgba(0,0,0,.6)' }}>
-      <div style={{ color:'var(--t3)', marginBottom:5, fontSize:9 }}>{d.date}</div>
-      {d.high !=null&&<div>H <span style={{color:'var(--g)'}}>₹{fmt(d.high)}</span></div>}
-      {d.low  !=null&&<div>L <span style={{color:'var(--r)'}}>₹{fmt(d.low)}</span></div>}
+const TIP_STYLE = {
+  background:'var(--s2)',border:'1px solid var(--b2)',
+  borderRadius:'var(--rr)',padding:'9px 12px',
+  fontSize:11,fontFamily:'var(--mono)',
+  boxShadow:'0 12px 40px rgba(0,0,0,.7)',
+}
+
+function PTip({active,payload}){
+  if(!active||!payload?.length)return null
+  const d=payload[0]?.payload;if(!d)return null
+  return(
+    <div style={{...TIP_STYLE,minWidth:145}}>
+      <div style={{color:'var(--t3)',marginBottom:5,fontSize:9}}>{d.date}</div>
+      {d.high !=null&&<div>H <span style={{color:'var(--green)'}}>₹{fmt(d.high)}</span></div>}
+      {d.low  !=null&&<div>L <span style={{color:'var(--red)'}}>₹{fmt(d.low)}</span></div>}
       {d.open !=null&&<div>O <span style={{color:'var(--t2)'}}>₹{fmt(d.open)}</span></div>}
       {d.close!=null&&<div>C <span style={{color:'var(--t1)',fontWeight:700}}>₹{fmt(d.close)}</span></div>}
       {d.volume!=null&&<div style={{borderTop:'1px solid var(--b1)',marginTop:5,paddingTop:5,color:'var(--t3)'}}>
@@ -29,12 +33,10 @@ function PTip({ active, payload }) {
   )
 }
 
-function P2Tip({ active, payload }) {
-  if (!active||!payload?.length) return null
-  return (
-    <div style={{ background:'var(--s2)', border:'1px solid var(--b2)', borderRadius:'var(--rr)',
-      padding:'7px 10px', fontSize:11, fontFamily:'var(--mono)',
-      boxShadow:'0 12px 36px rgba(0,0,0,.6)' }}>
+function P2Tip({active,payload}){
+  if(!active||!payload?.length)return null
+  return(
+    <div style={TIP_STYLE}>
       {payload.map((p,i)=>(
         <div key={i} style={{color:p.color}}>
           {p.name}: {typeof p.value==='number'?p.value.toFixed(2):p.value}
@@ -45,137 +47,125 @@ function P2Tip({ active, payload }) {
 }
 
 export default function MainChart() {
-  const { activeSym, activeCompany } = useApp()
-  const [data,    setData   ] = useState([])
-  const [days,    setDays   ] = useState(90)
-  const [overlays,setOvr    ] = useState(['MA20'])
-  const [panel2,  setPanel2 ] = useState('Volume')
-  const [loading, setLoading] = useState(false)
-  const ctrl = useRef(null)
+  const { activeSym, activeCompany:ac } = useApp()
+  const [data,    setData  ]=useState([])
+  const [days,    setDays  ]=useState(90)
+  const [overlays,setOvr   ]=useState(['MA20'])
+  const [panel2,  setP2    ]=useState('Volume')
+  const [loading, setLoad  ]=useState(false)
+  const ctrl=useRef(null)
 
-  useEffect(() => {
+  useEffect(()=>{
     ctrl.current?.abort()
-    ctrl.current = new AbortController()
-    setLoading(true)
-    api.data(activeSym, days, ctrl.current.signal)
-      .then(d => { setData(d); setLoading(false) })
-      .catch(e => { if (e.name!=='AbortError') setLoading(false) })
-    return () => ctrl.current?.abort()
-  }, [activeSym, days])
+    ctrl.current=new AbortController()
+    setLoad(true)
+    api.data(activeSym,days,ctrl.current.signal)
+      .then(d=>{setData(d);setLoad(false)})
+      .catch(e=>{if(e.name!=='AbortError')setLoad(false)})
+    return()=>ctrl.current?.abort()
+  },[activeSym,days])
 
-  const toggle = o => setOvr(p => p.includes(o)?p.filter(x=>x!==o):[...p,o])
-  const showBB = overlays.includes('BB')
+  const toggle=o=>setOvr(p=>p.includes(o)?p.filter(x=>x!==o):[...p,o])
 
-  // Strip info above chart from activeCompany (instant)
-  const ac = activeCompany
+  return(
+    <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background:'var(--bg)'}}>
 
-  return (
-    <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden',
-      background:'var(--bg)' }}>
-
-      {/* ── Stock strip (instant from company data) ── */}
-      {ac && (
+      {/* Stock strip — instant from activeCompany */}
+      {ac&&(
         <div style={{
-          padding:'6px 14px', background:'var(--s1)', borderBottom:'1px solid var(--b1)',
-          display:'flex', alignItems:'center', gap:12, flexWrap:'wrap', flexShrink:0,
+          padding:'7px 14px',background:'var(--s1)',
+          borderBottom:'1px solid var(--b1)',
+          display:'flex',alignItems:'center',gap:14,flexWrap:'wrap',flexShrink:0,
         }}>
-          <div style={{ display:'flex', alignItems:'baseline', gap:8 }}>
-            <span style={{ fontFamily:'var(--mono)', fontSize:13, fontWeight:700,
-              color:'var(--g)' }}>{ac.symbol}</span>
-            <span style={{ fontFamily:'var(--mono)', fontSize:18, fontWeight:700,
-              color:'var(--t1)' }}>₹{fmt(ac.close)}</span>
+          <div style={{display:'flex',alignItems:'baseline',gap:10}}>
+            <span style={{fontFamily:'var(--mono)',fontSize:12,fontWeight:700,color:'var(--green)'}}>
+              {ac.symbol}
+            </span>
+            <span style={{fontFamily:'var(--mono)',fontSize:20,fontWeight:700,color:'var(--t1)'}}>
+              ₹{fmt(ac.close)}
+            </span>
             <span className={cls(ac.change_pct)}
-              style={{ fontFamily:'var(--mono)', fontSize:12, fontWeight:600 }}>
+              style={{fontFamily:'var(--mono)',fontSize:12,fontWeight:700}}>
               {sign(ac.change_pct)}
             </span>
           </div>
-          <div style={{ display:'flex', gap:14, fontSize:10, color:'var(--t3)',
-            fontFamily:'var(--mono)' }}>
-            <span>H&nbsp;<span style={{color:'var(--g)'}}>₹{fmt(ac.high)}</span></span>
-            <span>L&nbsp;<span style={{color:'var(--r)'}}>₹{fmt(ac.low)}</span></span>
-            <span>Vol&nbsp;<span style={{color:'var(--t2)'}}>
-              {ac.volume>=1e7?(ac.volume/1e7).toFixed(1)+'Cr':
-               ac.volume>=1e5?(ac.volume/1e5).toFixed(1)+'L':ac.volume}
-            </span></span>
+          <div style={{display:'flex',gap:16,fontSize:10,color:'var(--t2)',fontFamily:'var(--mono)'}}>
+            <span>H&nbsp;<span style={{color:'var(--green)'}}>₹{fmt(ac.high)}</span></span>
+            <span>L&nbsp;<span style={{color:'var(--red)'}}>₹{fmt(ac.low)}</span></span>
+            <span>O&nbsp;₹{fmt(ac.open)}</span>
+            <span style={{color:'var(--t3)'}}>
+              {ac.volume>=1e7?(ac.volume/1e7).toFixed(1)+'Cr vol':
+               ac.volume>=1e5?(ac.volume/1e5).toFixed(1)+'L vol':
+               ac.volume?.toLocaleString()+' vol'}
+            </span>
           </div>
         </div>
       )}
 
-      {/* ── Toolbar ── */}
+      {/* Toolbar */}
       <div style={{
-        display:'flex', alignItems:'center', gap:5, flexWrap:'wrap',
-        padding:'6px 12px', borderBottom:'1px solid var(--b1)',
-        background:'var(--s1)', flexShrink:0,
+        display:'flex',alignItems:'center',gap:5,flexWrap:'wrap',
+        padding:'5px 12px',borderBottom:'1px solid var(--b1)',
+        background:'var(--s1)',flexShrink:0,
       }}>
-        {/* Period */}
-        <div className="tabs" style={{ gap:2 }}>
+        <div className="tab-row" style={{gap:2}}>
           {DAYS.map(d=>(
-            <button key={d} className={`tab ${days===d?'active':''}`}
-              style={{padding:'3px 8px',fontSize:10}}
-              onClick={()=>setDays(d)}>{d}D</button>
+            <button key={d} className={`tab-btn ${days===d?'on':''}`}
+              style={{padding:'3px 9px',fontSize:10}} onClick={()=>setDays(d)}>{d}D</button>
           ))}
         </div>
-
-        <div className="div-v"/>
-
-        {/* Overlays */}
+        <div className="divider-v"/>
         {OVS.map(o=>(
-          <button key={o} className={`tab ${overlays.includes(o)?'active':''}`}
-            style={{padding:'3px 8px',fontSize:10}}
-            onClick={()=>toggle(o)}>{o}</button>
+          <button key={o} className={`tab-btn ${overlays.includes(o)?'on':''}`}
+            style={{padding:'3px 9px',fontSize:10}} onClick={()=>toggle(o)}>{o}</button>
         ))}
-
-        <div className="div-v"/>
-
-        {/* Panel 2 */}
+        <div className="divider-v"/>
         {P2S.map(p=>(
-          <button key={p} className={`tab ${panel2===p?'active':''}`}
-            style={{padding:'3px 8px',fontSize:10}}
-            onClick={()=>setPanel2(p)}>{p}</button>
+          <button key={p} className={`tab-btn ${panel2===p?'on':''}`}
+            style={{padding:'3px 9px',fontSize:10}} onClick={()=>setP2(p)}>{p}</button>
         ))}
-
-        {loading && <div className="spinner" style={{width:13,height:13,marginLeft:'auto'}}/>}
+        {loading&&<div className="spinner" style={{width:13,height:13,marginLeft:'auto'}}/>}
       </div>
 
-      {/* ── Charts ── */}
-      {data.length===0&&!loading ? (
+      {/* Charts */}
+      {data.length===0&&!loading?(
         <div className="spin-center">
-          <span style={{color:'var(--t3)',fontSize:12}}>No data</span>
+          <div className="spinner"/>
+          <span style={{color:'var(--t4)',fontSize:11,fontFamily:'var(--mono)'}}>Loading…</span>
         </div>
-      ) : (
+      ):(
         <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',padding:'6px 0 2px'}}>
 
-          {/* Price chart 68% */}
+          {/* Price 68% */}
           <div style={{flex:'0 0 68%',minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={data} margin={{left:4,right:8,top:4,bottom:0}}>
-                <CartesianGrid strokeDasharray="1 5" stroke="var(--b1)" vertical={false}/>
+                <CartesianGrid strokeDasharray="1 6" stroke="var(--b1)" vertical={false}/>
                 <XAxis dataKey="date" tickFormatter={sd}
                   tick={{fontSize:9,fill:'var(--t3)',fontFamily:'var(--mono)'}}
-                  tickLine={false} axisLine={{stroke:'var(--b2)'}} minTickGap={48}/>
+                  tickLine={false} axisLine={{stroke:'var(--b2)'}} minTickGap={52}/>
                 <YAxis orientation="right" domain={['auto','auto']}
                   tick={{fontSize:9,fill:'var(--t3)',fontFamily:'var(--mono)'}}
                   tickLine={false} axisLine={false}
                   tickFormatter={v=>'₹'+Math.round(v).toLocaleString('en-IN')}/>
                 <Tooltip content={<PTip/>}/>
-
-                {showBB&&<>
+                {overlays.includes('BB')&&<>
                   <Line dataKey="bb_up" stroke="var(--blue)" strokeWidth={.7}
-                    dot={false} strokeDasharray="3 3" name="BB↑" opacity={.7}/>
+                    dot={false} strokeDasharray="3 3" opacity={.65}/>
                   <Line dataKey="bb_dn" stroke="var(--blue)" strokeWidth={.7}
-                    dot={false} strokeDasharray="3 3" name="BB↓" opacity={.7}/>
+                    dot={false} strokeDasharray="3 3" opacity={.65}/>
                 </>}
                 {overlays.includes('VWAP')&&
-                  <Line dataKey="vwap" stroke="var(--ind-orange)" strokeWidth={1}
-                    dot={false} strokeDasharray="4 3" name="VWAP" opacity={.8}/>}
+                  <Line dataKey="vwap" stroke="var(--orange)" strokeWidth={1}
+                    dot={false} strokeDasharray="4 3" opacity={.8} name="VWAP"/>}
                 {overlays.includes('MA20')&&
-                  <Line dataKey="ma20" stroke="var(--ind-cyan)" strokeWidth={1.2}
+                  <Line dataKey="ma20" stroke="var(--cyan)" strokeWidth={1.2}
                     dot={false} name="MA20"/>}
                 {overlays.includes('MA50')&&
-                  <Line dataKey="ma50" stroke="var(--ind-purple)" strokeWidth={1.2}
+                  <Line dataKey="ma50" stroke="var(--purple)" strokeWidth={1.2}
                     dot={false} name="MA50"/>}
-                <Line dataKey="close" stroke="var(--g)" strokeWidth={1.8} dot={false}
-                  name="Close" activeDot={{r:4,fill:'var(--g)',stroke:'var(--s1)',strokeWidth:2}}/>
+                <Line dataKey="close" stroke="var(--green)" strokeWidth={1.8} dot={false}
+                  name="Close" activeDot={{r:4,fill:'var(--green)',stroke:'var(--s1)',strokeWidth:2}}/>
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -183,58 +173,58 @@ export default function MainChart() {
           {/* Panel 2 — 30% */}
           <div style={{flex:'0 0 30%',minHeight:0,borderTop:'1px solid var(--b1)'}}>
             <ResponsiveContainer width="100%" height="100%">
-              {panel2==='RSI' ? (
+              {panel2==='RSI'?(
                 <ComposedChart data={data} margin={{left:4,right:8,top:3,bottom:0}}>
-                  <CartesianGrid strokeDasharray="1 5" stroke="var(--b1)" vertical={false}/>
+                  <CartesianGrid strokeDasharray="1 6" stroke="var(--b1)" vertical={false}/>
                   <XAxis dataKey="date" tickFormatter={sd}
                     tick={{fontSize:9,fill:'var(--t3)',fontFamily:'var(--mono)'}}
-                    tickLine={false} axisLine={false} minTickGap={48}/>
+                    tickLine={false} axisLine={false} minTickGap={52}/>
                   <YAxis orientation="right" domain={[0,100]}
                     tick={{fontSize:9,fill:'var(--t3)',fontFamily:'var(--mono)'}}
                     tickLine={false} axisLine={false}/>
                   <Tooltip content={<P2Tip/>}/>
-                  <ReferenceLine y={70} stroke="rgba(232,67,90,.4)" strokeDasharray="3 2"/>
-                  <ReferenceLine y={50} stroke="var(--b3)" strokeDasharray="2 4"/>
-                  <ReferenceLine y={30} stroke="rgba(0,201,138,.4)" strokeDasharray="3 2"/>
-                  <Line dataKey="rsi" stroke="var(--ind-cyan)" strokeWidth={1.4}
+                  <ReferenceLine y={70} stroke="rgba(239,68,68,.4)" strokeDasharray="3 2"/>
+                  <ReferenceLine y={50} stroke="var(--b2)" strokeDasharray="2 5"/>
+                  <ReferenceLine y={30} stroke="rgba(34,197,94,.4)" strokeDasharray="3 2"/>
+                  <Line dataKey="rsi" stroke="var(--cyan)" strokeWidth={1.4}
                     dot={false} name="RSI(14)"/>
                 </ComposedChart>
-              ) : panel2==='MACD' ? (
+              ):panel2==='MACD'?(
                 <ComposedChart data={data} margin={{left:4,right:8,top:3,bottom:0}}>
-                  <CartesianGrid strokeDasharray="1 5" stroke="var(--b1)" vertical={false}/>
+                  <CartesianGrid strokeDasharray="1 6" stroke="var(--b1)" vertical={false}/>
                   <XAxis dataKey="date" tickFormatter={sd}
                     tick={{fontSize:9,fill:'var(--t3)',fontFamily:'var(--mono)'}}
-                    tickLine={false} axisLine={false} minTickGap={48}/>
+                    tickLine={false} axisLine={false} minTickGap={52}/>
                   <YAxis orientation="right"
                     tick={{fontSize:9,fill:'var(--t3)',fontFamily:'var(--mono)'}}
                     tickLine={false} axisLine={false}/>
                   <Tooltip content={<P2Tip/>}/>
                   <ReferenceLine y={0} stroke="var(--b3)" strokeWidth={1}/>
-                  <Bar dataKey="macd_hist" fill="var(--ind-cyan)" fillOpacity={.6} name="Hist"/>
-                  <Line dataKey="macd"     stroke="var(--g)"          strokeWidth={1.2} dot={false} name="MACD"/>
-                  <Line dataKey="macd_sig" stroke="var(--ind-orange)" strokeWidth={1.2} dot={false} name="Signal"/>
+                  <Bar dataKey="macd_hist" fill="var(--cyan)" fillOpacity={.6} name="Hist"/>
+                  <Line dataKey="macd"     stroke="var(--green)"  strokeWidth={1.2} dot={false} name="MACD"/>
+                  <Line dataKey="macd_sig" stroke="var(--orange)" strokeWidth={1.2} dot={false} name="Signal"/>
                 </ComposedChart>
-              ) : panel2==='Stochastic' ? (
+              ):panel2==='Stochastic'?(
                 <ComposedChart data={data} margin={{left:4,right:8,top:3,bottom:0}}>
-                  <CartesianGrid strokeDasharray="1 5" stroke="var(--b1)" vertical={false}/>
+                  <CartesianGrid strokeDasharray="1 6" stroke="var(--b1)" vertical={false}/>
                   <XAxis dataKey="date" tickFormatter={sd}
                     tick={{fontSize:9,fill:'var(--t3)',fontFamily:'var(--mono)'}}
-                    tickLine={false} axisLine={false} minTickGap={48}/>
+                    tickLine={false} axisLine={false} minTickGap={52}/>
                   <YAxis orientation="right" domain={[0,100]}
                     tick={{fontSize:9,fill:'var(--t3)',fontFamily:'var(--mono)'}}
                     tickLine={false} axisLine={false}/>
                   <Tooltip content={<P2Tip/>}/>
-                  <ReferenceLine y={80} stroke="rgba(232,67,90,.4)" strokeDasharray="3 2"/>
-                  <ReferenceLine y={20} stroke="rgba(0,201,138,.4)" strokeDasharray="3 2"/>
-                  <Line dataKey="stoch_k" stroke="var(--ind-purple)" strokeWidth={1.3} dot={false} name="%K"/>
-                  <Line dataKey="stoch_d" stroke="var(--ind-yellow)" strokeWidth={1.3} dot={false} name="%D"/>
+                  <ReferenceLine y={80} stroke="rgba(239,68,68,.35)" strokeDasharray="3 2"/>
+                  <ReferenceLine y={20} stroke="rgba(34,197,94,.35)" strokeDasharray="3 2"/>
+                  <Line dataKey="stoch_k" stroke="var(--purple)" strokeWidth={1.3} dot={false} name="%K"/>
+                  <Line dataKey="stoch_d" stroke="var(--amber)"  strokeWidth={1.3} dot={false} name="%D"/>
                 </ComposedChart>
-              ) : (
+              ):(
                 <ComposedChart data={data} margin={{left:4,right:8,top:3,bottom:0}}>
-                  <CartesianGrid strokeDasharray="1 5" stroke="var(--b1)" vertical={false}/>
+                  <CartesianGrid strokeDasharray="1 6" stroke="var(--b1)" vertical={false}/>
                   <XAxis dataKey="date" tickFormatter={sd}
                     tick={{fontSize:9,fill:'var(--t3)',fontFamily:'var(--mono)'}}
-                    tickLine={false} axisLine={false} minTickGap={48}/>
+                    tickLine={false} axisLine={false} minTickGap={52}/>
                   <YAxis orientation="right"
                     tick={{fontSize:9,fill:'var(--t3)',fontFamily:'var(--mono)'}}
                     tickLine={false} axisLine={false}

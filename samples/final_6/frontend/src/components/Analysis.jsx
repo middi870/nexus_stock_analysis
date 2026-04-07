@@ -6,8 +6,6 @@
 import { useApp } from '../context/AppContext.jsx'
 import { fmt, sign, cls, fmtVol } from '../api.js'
 import NewsPanel from './NewsPanel.jsx'
-import AIAnalyst from './AIAnalyst.jsx'
-import AlertsPanel from './AlertsPanel.jsx'
 
 function StatCard({ label, value, sub, color }) {
   return (
@@ -169,14 +167,6 @@ export default function Analysis() {
               sub="Higher = further above annual low"/>
           </div>
         </>)}
-
-        {/* ── AI Analyst Report ── */}
-        <SectionLabel label="AI Analyst Report"/>
-        <AIAnalyst symbol={activeSym}/>
-
-        {/* ── Price Alerts ── */}
-        <SectionLabel label="Price Alerts"/>
-        <AlertsPanel symbol={activeSym}/>
 
         {/* ── #6 News Feed ── */}
         <SectionLabel label="News &amp; Headlines"/>

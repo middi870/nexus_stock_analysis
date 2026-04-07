@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { api, invalidate } from '../api.js'
 import { useUrlSync } from '../hooks/useUrlSync.js'
-import { useAlerts } from '../hooks/useAlerts.js'
 import { useQuotePoller } from '../hooks/useQuotePoller.js'
 
 const Ctx = createContext(null)
@@ -38,10 +37,6 @@ export function AppProvider({ children }) {
 
   // Real-time polling
   const { ageLabel, refreshNow } = useQuotePoller(setCompanies)
-
-  // Price alerts
-  const { alerts, addAlert, removeAlert, hasPermission, requestPerm,
-          triggered } = useAlerts(companies)
 
   const setTab = useCallback(t => { setTab_(t); setMobileTab(t) }, [])
 
@@ -103,7 +98,6 @@ export function AppProvider({ children }) {
       chartLoading, onChartReady,
       watchlist, toggleWatchlist,
       ageLabel, refreshNow,        // real-time
-      alerts, addAlert, removeAlert, hasPermission, requestPerm, triggered,  // alerts
     }}>
       {children}
     </Ctx.Provider>

@@ -85,7 +85,6 @@ export const api = {
   aiHistory: id           => get(`/ai/history/${id}`, 0),
   quote:     (sym,iv,sig)  => get(`/quote/${sym}?interval=${iv||'5m'}`, 0, sig),
   news:      (sym,sig)     => get(`/news/${sym}`,                       900_000, sig),
-  analyze:   (sym,body,sig) => post(`/ai/analyze/${sym}`, body),
 }
 
 // ── SSE Streaming ─────────────────────────────────────────────────────────────

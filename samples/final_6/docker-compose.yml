@@ -1,0 +1,59 @@
+version: "3.9"
+
+# NEXUS — local development stack
+# Usage:
+#   docker-compose up --build
+#
+# Backend:  http://localhost:8000  (FastAPI + SQLite)
+# Frontend: http://localhost:3000  (Vite dev server → proxies /api)
+# Docs:     http://localhost:8000/docs
+
+services:
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nexus-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist SQLite DB across restarts
+      - nexus-db:/data
+    environment:
+      DB_PATH:              /data/nexus.db
+      PORT:                 "8000"
+      CORS_ORIGINS:         "*"
+      # Ollama running on host machine
+      OLLAMA_BASE_URL:      http://host.docker.internal:11434
+      # Add API keys for cloud providers (or leave blank to use per-request keys from frontend)
+      ANTHROPIC_API_KEY:    ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY:       ${OPENAI_API_KEY:-}
+      OPENROUTER_API_KEY:   ${OPENROUTER_API_KEY:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      start_period: 90s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # In Docker Compose, the frontend proxies to the backend container name
+        VITE_API_URL: http://backend:8000
+    container_name: nexus-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  nexus-db:
+    driver: local

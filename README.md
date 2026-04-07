@@ -8,8 +8,8 @@
 
 ---
 ## Live Link
-- Backend: https://nexus-stock-analysis.onrender.com/docs
-- Frontend: https://nexus-stock-analysis.vercel.app/
+* Backend: https://nexus-stock-analysis.onrender.com/docs
+* Frontend: https://nexus-stock-analysis.vercel.app/
 ---
 
 ## Overview

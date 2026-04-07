@@ -1,33 +1,33 @@
-/**
- * App.jsx — root shell.
- * Uses a single active-view render pattern (no duplicate mounting).
- * Desktop: tab state. Mobile: mobileTab state.
- * Components are rendered conditionally — never all at once.
- */
 import { AppProvider, useApp } from './context/AppContext.jsx'
-import TopBar    from './components/TopBar.jsx'
-import Sidebar   from './components/Sidebar.jsx'
-import InfoBar   from './components/InfoBar.jsx'
-import BottomNav from './components/BottomNav.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
+import TopBar     from './components/TopBar.jsx'
+import Sidebar    from './components/Sidebar.jsx'
+import InfoBar    from './components/InfoBar.jsx'
+import BottomNav  from './components/BottomNav.jsx'
+import MainChart  from './components/MainChart.jsx'
+import Analysis   from './components/Analysis.jsx'
+import Screener   from './components/Screener.jsx'
+import Heatmap    from './components/Heatmap.jsx'
+import Compare    from './components/Compare.jsx'
+import StockList  from './components/StockList.jsx'
+import Portfolio  from './components/Portfolio.jsx'
+import SectorChart from './components/SectorChart.jsx'
 
-// Lazy import — rendered only when active
-import MainChart from './components/MainChart.jsx'
-import Analysis  from './components/Analysis.jsx'
-import Screener  from './components/Screener.jsx'
-import Heatmap   from './components/Heatmap.jsx'
-import Compare   from './components/Compare.jsx'
-import StockList from './components/StockList.jsx'
+function Wrap({ name, children }) {
+  return <ErrorBoundary name={name}>{children}</ErrorBoundary>
+}
 
-function ViewSwitch({ activeId }) {
-  // Only one branch renders at a time — no hidden/mounted duplicates
-  switch (activeId) {
-    case 'stocks':   return <StockList/>
-    case 'chart':    return <MainChart/>
-    case 'analysis': return <Analysis/>
-    case 'screener': return <Screener/>
-    case 'heatmap':  return <Heatmap/>
-    case 'compare':  return <Compare/>
-    default:         return <MainChart/>
+function ViewSwitch({ id }) {
+  switch (id) {
+    case 'stocks':    return <Wrap name="Stocks"><StockList/></Wrap>
+    case 'chart':     return <Wrap name="Chart"><MainChart/></Wrap>
+    case 'analysis':  return <Wrap name="Analysis"><Analysis/></Wrap>
+    case 'screener':  return <Wrap name="Screener"><Screener/></Wrap>
+    case 'heatmap':   return <Wrap name="Heatmap"><Heatmap/></Wrap>
+    case 'sectors':   return <Wrap name="Sectors"><SectorChart/></Wrap>
+    case 'compare':   return <Wrap name="Compare"><Compare/></Wrap>
+    case 'portfolio': return <Wrap name="Portfolio"><Portfolio/></Wrap>
+    default:          return <Wrap name="Chart"><MainChart/></Wrap>
   }
 }
 
@@ -47,15 +47,19 @@ function Inner() {
         <div className="spinner"/>
         <div style={{ fontWeight:700, fontSize:14, color:'var(--t2)',
           letterSpacing:'.12em', marginTop:4 }}>NEXUS</div>
-        <div style={{ fontSize:10, color:'var(--t4)' }}>Connecting to market feed…</div>
+        <div style={{ fontSize:10, color:'var(--t4)' }}>
+          Connecting to market feed…
+        </div>
       </div>
     </div>
   )
 
   if (error) return (
-    <div className="app" style={{ alignItems:'center', justifyContent:'center', padding:24 }}>
+    <div className="app" style={{ alignItems:'center',
+      justifyContent:'center', padding:24 }}>
       <div className="err-panel" style={{ maxWidth:460 }}>
-        <div style={{ color:'var(--red)', fontWeight:700, marginBottom:10, fontSize:14 }}>
+        <div style={{ color:'var(--red)', fontWeight:700,
+          marginBottom:10, fontSize:14 }}>
           Cannot connect to backend
         </div>
         <div style={{ marginBottom:12 }}>{error}</div>
@@ -66,23 +70,23 @@ function Inner() {
 
   return (
     <div className="app">
-      <TopBar/>
+      <ErrorBoundary name="TopBar"><TopBar/></ErrorBoundary>
 
-      {/* ── Desktop layout (≥1024px) ─────────────────────────── */}
+      {/* Desktop layout (≥1024px) */}
       <div className="body">
-        <Sidebar/>
+        <Wrap name="Sidebar"><Sidebar/></Wrap>
         <div className="main-view">
-          <ViewSwitch activeId={tab}/>
+          <ViewSwitch id={tab}/>
         </div>
-        <InfoBar/>
+        <Wrap name="InfoBar"><InfoBar/></Wrap>
       </div>
 
-      {/* ── Mobile overlay (shown via CSS, hidden on desktop) ─── */}
+      {/* Mobile overlay */}
       <div className="mobile-screen">
-        <ViewSwitch activeId={mobileTab}/>
+        <ViewSwitch id={mobileTab}/>
       </div>
 
-      <BottomNav/>
+      <ErrorBoundary name="BottomNav"><BottomNav/></ErrorBoundary>
     </div>
   )
 }

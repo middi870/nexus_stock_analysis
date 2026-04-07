@@ -1,18 +1,14 @@
-# NEXUS — Backend dependencies
-# Pinned for reproducible Railway builds
+# NEXUS v0.2.0 — Backend dependencies
+# Pinned for reproducible Railway/Docker builds
 
 fastapi==0.115.6
 uvicorn[standard]==0.32.1
 pydantic==2.10.3
 
-# Data
+# Data layer
 pandas==2.2.3
 numpy==1.26.4
-yfinance==0.2.50
+yfinance==0.2.50      # pinned — 0.2.50+ has new content{} news schema
 
-# HTTP client (AI provider streaming)
+# HTTP client (intraday streaming, AI providers)
 httpx==0.27.2
-
-# Optional — only needed for PostgreSQL (add DATABASE_URL to env)
-# psycopg2-binary==2.9.10
-# asyncpg==0.30.0

@@ -28,3 +28,19 @@ def health():
         "db":        "ok" if db_ok else "error",
         "cache_size": cache.size,
     }
+
+# ── Rate-limited refresh ──────────────────────────────────────────────────────
+import time as _time
+
+_last_refresh_ts: float = 0.0
+_REFRESH_COOLDOWN: int  = 1800   # 30 minutes
+
+@router.post("/refresh-status")
+def refresh_status():
+    remaining = max(0, _REFRESH_COOLDOWN - (_time.time() - _last_refresh_ts))
+    return {
+        "last_refresh": int(_last_refresh_ts) or None,
+        "cooldown_secs": _REFRESH_COOLDOWN,
+        "next_allowed_in": int(remaining),
+        "can_refresh": remaining == 0,
+    }

@@ -8,8 +8,8 @@
 
 ---
 ## Live Link
-> Backend: https://nexus-stock-analysis.onrender.com/docs
-> Frontend: https://nexus-stock-analysis.vercel.app/
+- Backend: https://nexus-stock-analysis.onrender.com/docs
+- Frontend: https://nexus-stock-analysis.vercel.app/
 ---
 
 ## Overview
@@ -290,3 +290,35 @@ Beyond the assignment requirements:
 ## License
 
 MIT — built for the Jarnox internship assignment.
+
+---
+
+## v0.2.0 Changelog
+
+### Frontend
+
+| # | Feature | Details |
+|---|---------|---------|
+| 1 | **Error Boundaries** | Every panel (`Chart`, `Heatmap`, `Screener`, `Sidebar`, `InfoBar`) wrapped in `ErrorBoundary`. A crash shows an inline card with Try Again — no more full-page black screen. |
+| 2 | **Loading Overlay** | When switching stocks, a frosted blur overlay shows `"Loading TCS…"` instantly — no stale data flicker while the chart fetches. |
+| 3 | **Watchlist** | Star button on every stock row. Starred stocks pin to the top. Persists across sessions via `localStorage`. Watchlist-only filter mode. |
+| 4 | **Sparklines** | 10-bar SVG mini trend chart on every stock list row. Zero recharts — pure `<svg>` path for performance. Green/red matches trend direction. |
+| 5 | **Intraday Chart (1D)** | New `1D` period with `5m / 15m / 30m` interval sub-selector. Uses `/quote/{symbol}` live yfinance bars. Time on X-axis, candle count shown in strip. |
+| 6 | **News Feed** | Latest headlines in the Analysis tab via `/news/{symbol}`. Title, publisher, date, 2-line summary, clickable link. 15-min server-side cache. |
+| 7 | **Keyboard Search** | `↑↓` to navigate results, `Enter` to select, `Escape` to close — standard UX. Hint shown in dropdown header. |
+| 8 | **Compare Fix** | No longer fires on every mount. Shows empty state prompt. User clicks **Compare** explicitly. Re-runs on period change only after first run. |
+| 9 | **Screener Fix** | Auto-runs on first mount with empty filters. Results persist when navigating away and back. |
+| 10 | **CSV Export** | Screener results download as `nexus-screener-YYYY-MM-DD.csv` with one click. |
+| 11 | **Real-time Polling** | Prices refresh every 60 seconds. "Updated 42s ago" indicator in TopBar. Manual refresh button. `localStorage` cache invalidated on each poll. |
+| 12 | **URL State Sync** | Active symbol + tab encoded in URL hash (`#/chart/TCS`). Bookmarkable, shareable, survives refresh. |
+| 13 | **PWA** | `manifest.json` + service worker. App installs via "Add to Home Screen" on mobile. Shell cached offline. API calls never cached. |
+
+### Backend
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /quote/{symbol}?interval=5m` | Live intraday OHLCV bars (5m/15m/30m). 3-min cache. |
+| `GET /news/{symbol}` | Up to 6 recent headlines from yfinance. 15-min cache. |
+| `GET /companies` | Now includes `spark: float[]` — last 10 closes for sparklines. |
+| `POST /refresh` | Rate-limited to once per 30 minutes (returns 429 if too soon). |
+

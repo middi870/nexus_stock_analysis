@@ -1,0 +1,17 @@
+# railway.toml — NEXUS Frontend
+# Deploy from the /frontend directory on Railway.
+# Set VITE_API_URL env var to your backend Railway service URL
+# e.g. https://nexus-backend.up.railway.app
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[build.args]
+VITE_API_URL = "$VITE_API_URL"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 60
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3

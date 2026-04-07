@@ -74,12 +74,27 @@ app.include_router(ai.router)
 
 # ── Admin endpoints ───────────────────────────────────────────────────────────
 
+import time as _time
+from fastapi import HTTPException as _HTTPException
+
+_last_refresh: float = 0.0
+_REFRESH_COOLDOWN = 1800   # 30 minutes between refreshes
+
 @app.post("/refresh", tags=["Admin"])
 async def refresh(bg: BackgroundTasks):
-    """Trigger a full data re-ingestion in the background."""
+    """Rate-limited data re-ingestion (max once per 30 minutes)."""
+    global _last_refresh
+    elapsed  = _time.time() - _last_refresh
+    remaining = _REFRESH_COOLDOWN - elapsed
+    if _last_refresh > 0 and remaining > 0:
+        raise _HTTPException(
+            status_code=429,
+            detail=f"Refresh rate-limited. Try again in {int(remaining)}s."
+        )
+    _last_refresh = _time.time()
     cache.clear()
     bg.add_task(ingest_all)
-    return {"message": "Data refresh started", "cache": "cleared"}
+    return {"message": "Data refresh started", "cache": "cleared", "next_in": _REFRESH_COOLDOWN}
 
 
 @app.get("/cache/stats", tags=["Admin"])

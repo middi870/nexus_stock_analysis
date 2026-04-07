@@ -83,6 +83,8 @@ export const api = {
   refresh:   ()           => post('/refresh', {}),
   aiChat:    (body,sig)   => post('/ai/chat', body, sig),
   aiHistory: id           => get(`/ai/history/${id}`, 0),
+  quote:     (sym,iv,sig)  => get(`/quote/${sym}?interval=${iv||'5m'}`, 0, sig),
+  news:      (sym,sig)     => get(`/news/${sym}`,                       900_000, sig),
 }
 
 // ── SSE Streaming ─────────────────────────────────────────────────────────────

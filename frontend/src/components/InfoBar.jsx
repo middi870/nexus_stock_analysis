@@ -40,7 +40,7 @@ function GaugeBar({ label, value, min=0, max=100 }) {
 
 export default function InfoBar() {
   const { activeCompany:ac, summary:s, summaryLoading, tab } = useApp()
-  if (tab!=='chart'&&tab!=='analysis') return null
+  if (!['chart','analysis','portfolio'].includes(tab)) return null
 
   const style = {
     width:'var(--infobar-w)',flexShrink:0,

@@ -24,9 +24,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor:       ['react', 'react-dom'],
-          recharts:     ['recharts'],
-          tradingview:  ['lightweight-charts'],
+          vendor:   ['react', 'react-dom'],
+          recharts: ['recharts'],
         },
       },
     },

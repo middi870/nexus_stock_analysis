@@ -7,6 +7,10 @@
 ![Railway](https://img.shields.io/badge/Deploy-Railway-purple?style=flat-square)
 
 ---
+## Live Link
+* Backend: https://nexus-stock-analysis.onrender.com/docs
+* Frontend: https://nexus-stock-analysis.vercel.app/
+---
 
 ## Overview
 

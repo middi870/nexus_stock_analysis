@@ -1,0 +1,24 @@
+{
+  "name": "nexus-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .jsx,.js"
+  },
+  "dependencies": {
+    "lightweight-charts": "^5.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.13.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/parser": "^7.29.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11"
+  }
+}
